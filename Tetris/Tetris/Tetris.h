@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 
-#define NUM_COLS 8
-#define NUM_ROWS 16
+#define NUM_COLS 10
+#define NUM_ROWS 22
 #define FIELD_WIDTH 200
 #define FIELD_HEIGHT 400
 #define GRID_SIZE (FIELD_WIDTH/NUM_COLS)
@@ -42,13 +42,20 @@ public:
 	void Draw(sf::RenderWindow* window);
 	float m_originRowIdx;
 	float m_originColIdx;
+	bool Rotate(bool right);
 	void Init(Tetris* board);
-	void Rotate(bool right);
 	bool Move(int x, int y);
 	bool PositionIsValid();
 	void Drop();
 
 	Tetris* m_board;
+	int m_pivotRow;
+	int m_pivotCol;
+
+	PieceType m_type;
+private:
+	bool __TryRotate(bool right);
+	void __DoRotate(bool right);
 };
 
 class GridCell
@@ -67,8 +74,11 @@ public:
 	void Update(float dt);
 	void Draw(sf::RenderWindow* window);
 	void DropCurrentPiece();
+	void ClearRow(int row);
+	void DropRow(int row);
+
 	GridCell m_grid[NUM_COLS][NUM_ROWS];
 	Piece* m_currentPiece;
 	float m_dropTimer;
-	float m_inputTimer;
+	float m_repeatTimer;
 };

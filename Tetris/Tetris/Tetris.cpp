@@ -18,25 +18,46 @@ void Piece::Init(Tetris* board)
 {
 	m_board = board;
 }
-void Piece::Rotate(bool right)
+bool Piece::Rotate(bool right)
 {
-	for (int i = 0; i < 4; i++)
+	if (m_type == SHAPE_CUBE)
 	{
-		int oldCol = m_blocks[i].colIdx;
-		m_blocks[i].colIdx = -m_blocks[i].rowIdx;
-		m_blocks[i].rowIdx = oldCol;		
+		return true;
 	}
 
-	if (!PositionIsValid())
+	if (__TryRotate(right))
 	{
-		// Undo the rotation
-		for (int i = 0; i < 4; i++)
+		return true;
+	}
+
+	// One space left
+	if (Move(-1, 0))
+	{
+		if (__TryRotate(right))
 		{
-			int oldCol = m_blocks[i].colIdx;
-			m_blocks[i].colIdx = m_blocks[i].rowIdx;
-			m_blocks[i].rowIdx = -oldCol;
+			return true;
+		}		
+		else if (Move(2, 0))
+		{
+			if (__TryRotate(right))
+			{
+				return true;
+			}
+		}		
+	}
+	else if (Move(1,0))
+	{
+		if (__TryRotate(right))
+		{
+			return true;
+		}
+		else
+		{
+			Move(-1, 0);
 		}
 	}
+	
+	return false;
 }
 
 bool Piece::Move(int x, int y)
@@ -98,10 +119,6 @@ bool Piece::PositionIsValid()
 		}
 	}
 
-	// Now check each piece aganst every other piece
-	
-			
-	
 	return true;
 }
 
@@ -119,6 +136,43 @@ void Piece::Drop()
 	}
 }
 
+bool Piece::__TryRotate(bool right)
+{
+	bool result = true;
+	__DoRotate(right);
+	// Try moving this around
+	if (!PositionIsValid())
+	{
+		__DoRotate(!right);
+		result = false;
+	}	
+
+	return result;
+}
+
+void Piece::__DoRotate(bool right)
+{
+	if (right)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			int oldCol = m_blocks[i].colIdx;
+			m_blocks[i].colIdx = m_pivotCol + m_pivotRow - m_blocks[i].rowIdx;
+			m_blocks[i].rowIdx = m_pivotRow - m_pivotCol + oldCol;
+		}
+	}
+	else
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			int oldrow = m_blocks[i].rowIdx;
+			m_blocks[i].rowIdx = m_pivotRow + m_pivotCol - m_blocks[i].colIdx;
+			m_blocks[i].colIdx = m_pivotCol - m_pivotRow + oldrow;
+		}
+	}
+
+}
+
 void Piece::Draw(sf::RenderWindow* window)
 {
 	for (int i=0 ; i<4 ; i++)
@@ -133,6 +187,8 @@ Piece* Tetris::CreatePiece(PieceType type)
 	Piece* result = new Piece();
 	result->Init(this);
 	
+	result->m_type = type;
+
 	switch(type)
 	{
 	case SHAPE_T: // T piece
@@ -147,6 +203,9 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_blocks[3].rowIdx = 2;
 		result->m_blocks[3].colIdx = 1;
+		
+		result->m_pivotCol = 1;
+		result->m_pivotRow = 1;
 		break;
 	case SHAPE_Z: // Z piece
 		result->m_blocks[0].rowIdx = 0;
@@ -160,6 +219,9 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_blocks[3].rowIdx = 1;
 		result->m_blocks[3].colIdx = 2;
+
+		result->m_pivotCol = 1;
+		result->m_pivotRow = 1;
 		break;
 	case SHAPE_S: // S piece
 		result->m_blocks[0].rowIdx = 1;
@@ -173,6 +235,9 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_blocks[3].rowIdx = 0;
 		result->m_blocks[3].colIdx = 2;
+
+		result->m_pivotCol = 1;
+		result->m_pivotRow = 1;
 		break;
 	case SHAPE_L: // L piece
 		result->m_blocks[0].rowIdx = 0;
@@ -186,6 +251,9 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_blocks[3].rowIdx = 2;
 		result->m_blocks[3].colIdx = 1;
+
+		result->m_pivotCol = 0;
+		result->m_pivotRow = 1;
 		break;
 	case SHAPE_J: // J piece
 		result->m_blocks[0].rowIdx = 0;
@@ -199,6 +267,9 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_blocks[3].rowIdx = 2;
 		result->m_blocks[3].colIdx = 0;
+
+		result->m_pivotCol = 1;
+		result->m_pivotRow = 1;
 		break;
 	case SHAPE_CUBE: // J piece
 		result->m_blocks[0].rowIdx = 0;
@@ -212,6 +283,9 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_blocks[3].rowIdx = 1;
 		result->m_blocks[3].colIdx = 1;
+
+		result->m_pivotCol = 1;
+		result->m_pivotRow = 1;
 		break;
 	case SHAPE_TETRIS: // J piece
 		result->m_blocks[0].rowIdx = 0;
@@ -225,11 +299,13 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_blocks[3].rowIdx = 3;
 		result->m_blocks[3].colIdx = 0;
+		result->m_pivotCol = 0;
+		result->m_pivotRow = 2;
 		break;
 	}
 	
 	result->m_originColIdx = (int)(NUM_COLS * 0.5f) -1;
-	result->m_originRowIdx = 0;
+	result->m_originRowIdx = 2;
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -268,57 +344,72 @@ void Tetris::Init()
 
 	m_currentPiece = CreatePiece((PieceType)(rand() % SHAPE_COUNT));
 	m_dropTimer = DROP_SPEED;
-	m_inputTimer = INPUT_REPEAT_DELAY;
+	m_repeatTimer = INPUT_REPEAT_DELAY;
 }
 
 void Tetris::Update(float dt)
 {
 	m_dropTimer -= dt;
-	m_inputTimer -= dt;
+	m_repeatTimer -= dt;
 
-	if (m_inputTimer <= 0.0f)
-	{
-		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-		{			
-			m_inputTimer = INPUT_REPEAT_DELAY;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+	{			
+		if (m_repeatTimer <= 0.0f)
+		{
+			m_repeatTimer = INPUT_REPEAT_DELAY;
 			if (m_currentPiece)
 			{
 				m_currentPiece->Rotate(true);
 			}
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+	{
+		if (m_repeatTimer <= 0.0f)
 		{
-			m_inputTimer = INPUT_REPEAT_DELAY;
+			m_repeatTimer = INPUT_REPEAT_DELAY;
 			if (m_currentPiece)
 			{
-				m_currentPiece->Move(1,0);
+				m_currentPiece->Move(1, 0);
 			}
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+	{
+		if (m_repeatTimer <= 0.0f)
 		{
-			m_inputTimer = INPUT_REPEAT_DELAY;
+			m_repeatTimer = INPUT_REPEAT_DELAY;
 			if (m_currentPiece)
 			{
 				m_currentPiece->Move(-1, 0);
 			}
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+	{
+		if (m_repeatTimer <= 0.0f)
 		{
-			m_inputTimer = INPUT_REPEAT_DELAY;
+			m_repeatTimer = INPUT_REPEAT_DELAY;
 			if (m_currentPiece)
 			{
 				if (!m_currentPiece->Move(0, 1))
-				{				
-					DropCurrentPiece();					
+				{
+					DropCurrentPiece();
 				}
 			}
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	{
+		if (m_repeatTimer <= 0.0f)
 		{
-			m_inputTimer = 0.5f;
+			m_repeatTimer = 0.5f;
 			DropCurrentPiece();
 		}
+	}
+	else
+	{
+		m_repeatTimer = 0.0f;
 	}
 
 	if (m_currentPiece != NULL)
@@ -347,7 +438,10 @@ void Tetris::Draw(sf::RenderWindow* window)
 		for (int j=0 ; j < NUM_ROWS ; j++)
 		{			
 			window->draw(m_grid[i][j].m_backgroundShape);
-			m_grid[i][j].m_block.Draw(window, 0, 0);
+			if (m_grid[i][j].m_isFilled)
+			{
+				m_grid[i][j].m_block.Draw(window, 0, 0);
+			}
 		}
 	}
 
@@ -362,6 +456,57 @@ void Tetris::DropCurrentPiece()
 	m_currentPiece->Drop();
 	delete m_currentPiece;
 	m_currentPiece = CreatePiece((PieceType)(rand() % SHAPE_COUNT));
+
+	// Check for clears
+
+	for (int i = 0; i < NUM_ROWS; i++)
+	{
+		bool clear = true;
+		for (int j = 0; j < NUM_COLS; j++)
+		{
+			if (!m_grid[j][i].m_isFilled)
+			{
+				clear = false;
+				break;
+			}
+		}
+
+		if (clear)
+		{			
+			ClearRow(i);			
+		}
+	}
+}
+
+void Tetris::ClearRow(int row)
+{
+	// Clear this line
+	for (int i = 0; i < NUM_COLS; i++)
+	{
+		m_grid[i][row].m_isFilled = false;
+	}
+
+	// Move every row above it down
+	for (int i = row - 1; i >= 0; i--)
+	{
+		DropRow(i);
+	}
+}
+
+void Tetris::DropRow(int row)
+{
+	if (row < NUM_ROWS)
+	{
+		for (int i = 0; i < NUM_COLS; i++)
+		{
+			if (m_grid[i][row].m_isFilled)
+			{
+				m_grid[i][row + 1].m_block.shape = m_grid[i][row].m_block.shape;
+				m_grid[i][row + 1].m_isFilled = true;
+				m_grid[i][row].m_isFilled = false;
+			}
+		}
+	}
 }
 
 int main()
