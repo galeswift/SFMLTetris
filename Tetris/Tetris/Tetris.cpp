@@ -189,6 +189,7 @@ Piece* Tetris::CreatePiece(PieceType type)
 	
 	result->m_type = type;
 
+	sf::Color pieceColor;
 	switch(type)
 	{
 	case SHAPE_T: // T piece
@@ -206,6 +207,8 @@ Piece* Tetris::CreatePiece(PieceType type)
 		
 		result->m_pivotCol = 1;
 		result->m_pivotRow = 1;
+
+		pieceColor = sf::Color(138, 43, 226);
 		break;
 	case SHAPE_Z: // Z piece
 		result->m_blocks[0].rowIdx = 0;
@@ -222,6 +225,8 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_pivotCol = 1;
 		result->m_pivotRow = 1;
+
+		pieceColor = sf::Color(255, 0, 0);
 		break;
 	case SHAPE_S: // S piece
 		result->m_blocks[0].rowIdx = 1;
@@ -238,6 +243,8 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_pivotCol = 1;
 		result->m_pivotRow = 1;
+
+		pieceColor = sf::Color(0, 255, 0);
 		break;
 	case SHAPE_L: // L piece
 		result->m_blocks[0].rowIdx = 0;
@@ -254,6 +261,8 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_pivotCol = 0;
 		result->m_pivotRow = 1;
+
+		pieceColor = sf::Color(255, 165, 0);
 		break;
 	case SHAPE_J: // J piece
 		result->m_blocks[0].rowIdx = 0;
@@ -270,6 +279,8 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_pivotCol = 1;
 		result->m_pivotRow = 1;
+
+		pieceColor = sf::Color(0, 0, 255);		
 		break;
 	case SHAPE_CUBE: // J piece
 		result->m_blocks[0].rowIdx = 0;
@@ -286,6 +297,8 @@ Piece* Tetris::CreatePiece(PieceType type)
 
 		result->m_pivotCol = 1;
 		result->m_pivotRow = 1;
+
+		pieceColor = sf::Color(255, 255, 0);
 		break;
 	case SHAPE_TETRIS: // J piece
 		result->m_blocks[0].rowIdx = 0;
@@ -301,17 +314,23 @@ Piece* Tetris::CreatePiece(PieceType type)
 		result->m_blocks[3].colIdx = 0;
 		result->m_pivotCol = 0;
 		result->m_pivotRow = 2;
+
+		pieceColor = sf::Color(0, 255, 255);
 		break;
 	}
 	
 	result->m_originColIdx = (int)(NUM_COLS * 0.5f) -1;
 	result->m_originRowIdx = 2;
 
+	sf::Color outlineColor = pieceColor;
+	outlineColor.r *= 0.75f;
+	outlineColor.g *= 0.75f;
+	outlineColor.b *= 0.75f;
 	for (int i = 0; i < 4; i++)
 	{
 		sf::RectangleShape& grid = result->m_blocks[i].shape;
-		grid.setFillColor(sf::Color(170, 57, 57, 255));
-		grid.setOutlineColor(sf::Color(128, 21, 21, 255));
+		grid.setFillColor(pieceColor);
+		grid.setOutlineColor(outlineColor);
 		grid.setOutlineThickness(2.0f);
 		grid.setSize(sf::Vector2f(GRID_SIZE - grid.getOutlineThickness(), GRID_SIZE - grid.getOutlineThickness()));
 	}
@@ -344,30 +363,54 @@ void Tetris::Init()
 
 	m_currentPiece = CreatePiece((PieceType)(rand() % SHAPE_COUNT));
 	m_dropTimer = DROP_SPEED;
-	m_repeatTimer = INPUT_REPEAT_DELAY;
+	m_repeatTimer = INPUT_REPEAT_INTERVAL;
+
+	// Input bindings
+	{
+		InputMapping mapping;
+		mapping.key = sf::Keyboard::Up;
+		mapping.InputFunc = &Tetris::KeyRotate;
+		m_inputs.push_back(mapping);
+	}
+}
+
+void Tetris::KeyRotate()
+{
+	if (m_currentPiece)
+	{
+		m_currentPiece->Rotate(true);
+	}
 }
 
 void Tetris::Update(float dt)
 {
+	for (int i = 0; i < m_inputs.size(); i++)
+	{
+		if (sf::Keyboard::isKeyPressed(m_inputs[i].key))
+		{
+			InputMapping mapping = m_inputs[i]	;
+			(this->*(mapping.InputFunc))();
+		}
+	}
 	m_dropTimer -= dt;
-	m_repeatTimer -= dt;
+	
+	bool keyPressed = false;
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
 	{			
+		keyPressed = true;
 		if (m_repeatTimer <= 0.0f)
 		{
-			m_repeatTimer = INPUT_REPEAT_DELAY;
-			if (m_currentPiece)
-			{
-				m_currentPiece->Rotate(true);
-			}
+			m_repeatTimer = INPUT_REPEAT_INTERVAL;
+			
 		}
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
+		keyPressed = true;
 		if (m_repeatTimer <= 0.0f)
 		{
-			m_repeatTimer = INPUT_REPEAT_DELAY;
+			m_repeatTimer = INPUT_REPEAT_INTERVAL;
 			if (m_currentPiece)
 			{
 				m_currentPiece->Move(1, 0);
@@ -376,9 +419,10 @@ void Tetris::Update(float dt)
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
+		keyPressed = true;
 		if (m_repeatTimer <= 0.0f)
 		{
-			m_repeatTimer = INPUT_REPEAT_DELAY;
+			m_repeatTimer = INPUT_REPEAT_INTERVAL;
 			if (m_currentPiece)
 			{
 				m_currentPiece->Move(-1, 0);
@@ -387,9 +431,10 @@ void Tetris::Update(float dt)
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 	{
+		keyPressed = true;
 		if (m_repeatTimer <= 0.0f)
 		{
-			m_repeatTimer = INPUT_REPEAT_DELAY;
+			m_repeatTimer = INPUT_REPEAT_INTERVAL;
 			if (m_currentPiece)
 			{
 				if (!m_currentPiece->Move(0, 1))
@@ -401,15 +446,27 @@ void Tetris::Update(float dt)
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 	{
+		keyPressed = true;
 		if (m_repeatTimer <= 0.0f)
 		{
-			m_repeatTimer = 0.5f;
+			m_repeatTimer = INPUT_REPEAT_INTERVAL;
 			DropCurrentPiece();
 		}
 	}
 	else
 	{
+		// Make this zero so that every time you release the key you can move
 		m_repeatTimer = 0.0f;
+		m_repeatStartTimer = INPUT_REPEAT_START_DELAY;
+	}
+
+	if (keyPressed)
+	{
+		m_repeatStartTimer -= dt;
+		if (m_repeatStartTimer <= 0.0f)
+		{
+			m_repeatTimer -= dt;
+		}
 	}
 
 	if (m_currentPiece != NULL)
