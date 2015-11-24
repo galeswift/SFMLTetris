@@ -8,8 +8,8 @@
 #define FIELD_ORIGIN_X 300
 #define FIELD_ORIGIN_Y 100
 #define DROP_SPEED 0.5f
-#define INPUT_REPEAT_START_DELAY 0.25f;
-#define INPUT_REPEAT_INTERVAL 0.05f
+#define INPUT_REPEAT_START_DELAY 0.5f;
+#define INPUT_REPEAT_INTERVAL 0.1f
 
 class Tetris;
 
@@ -69,8 +69,13 @@ public:
 
 struct InputMapping
 {
+	InputMapping() : m_timeHeld(0.0f)
+	{
+
+	}
 	sf::Keyboard::Key key;
 	float m_timeHeld;
+	bool m_isHeld;
 	void(Tetris::*InputFunc)();
 };
 
@@ -79,20 +84,23 @@ class Tetris
 public:
 	Piece* CreatePiece(PieceType type);
 	void Init();
+	void InitKeyBindings();
 	void Update(float dt);
 	void Draw(sf::RenderWindow* window);
 	void DropCurrentPiece();
 	void ClearRow(int row);
 	void DropRow(int row);
-
 	GridCell m_grid[NUM_COLS][NUM_ROWS];
-	Piece* m_currentPiece;
-	float m_dropTimer;
+	Piece* m_currentPiece;	
 	float m_repeatTimer;
 	float m_repeatStartTimer;
 
 	// Input mappings
 	void KeyRotate();
+	void KeyMoveLeft();
+	void KeyMoveRight();
+	void KeyMoveDown();
+	void KeyDrop();
 
 	std::vector<InputMapping> m_inputs;
 };

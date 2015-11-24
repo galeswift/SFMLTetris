@@ -361,15 +361,47 @@ void Tetris::Init()
 		}
 	}
 
-	m_currentPiece = CreatePiece((PieceType)(rand() % SHAPE_COUNT));
-	m_dropTimer = DROP_SPEED;
+	m_currentPiece = CreatePiece((PieceType)(rand() % SHAPE_COUNT));	
 	m_repeatTimer = INPUT_REPEAT_INTERVAL;
 
+	InitKeyBindings();
+}
+
+void Tetris::InitKeyBindings()
+{
 	// Input bindings
 	{
 		InputMapping mapping;
 		mapping.key = sf::Keyboard::Up;
 		mapping.InputFunc = &Tetris::KeyRotate;
+		m_inputs.push_back(mapping);
+	}
+
+	{
+		InputMapping mapping;
+		mapping.key = sf::Keyboard::Right;
+		mapping.InputFunc = &Tetris::KeyMoveRight;
+		m_inputs.push_back(mapping);
+	}
+
+	{
+		InputMapping mapping;
+		mapping.key = sf::Keyboard::Left;
+		mapping.InputFunc = &Tetris::KeyMoveLeft;
+		m_inputs.push_back(mapping);
+	}
+
+	{
+		InputMapping mapping;
+		mapping.key = sf::Keyboard::Down;
+		mapping.InputFunc = &Tetris::KeyMoveDown;
+		m_inputs.push_back(mapping);
+	}
+
+	{
+		InputMapping mapping;
+		mapping.key = sf::Keyboard::Space;
+		mapping.InputFunc = &Tetris::KeyDrop;
 		m_inputs.push_back(mapping);
 	}
 }
@@ -382,93 +414,78 @@ void Tetris::KeyRotate()
 	}
 }
 
+void Tetris::KeyMoveLeft()
+{
+	if (m_currentPiece)
+	{
+		m_currentPiece->Move(-1, 0);
+	}
+}
+
+void Tetris::KeyMoveRight()
+{
+	if (m_currentPiece)
+	{
+		m_currentPiece->Move(1,0);
+	}
+}
+
+void Tetris::KeyMoveDown()
+{
+	if (m_currentPiece)
+	{
+		if (!m_currentPiece->Move(0, 1))
+		{
+			DropCurrentPiece();
+		}
+	}
+}
+
+void Tetris::KeyDrop()
+{
+	if (m_currentPiece)
+	{
+		DropCurrentPiece();
+	}
+}
+
 void Tetris::Update(float dt)
 {
 	for (int i = 0; i < m_inputs.size(); i++)
 	{
-		if (sf::Keyboard::isKeyPressed(m_inputs[i].key))
-		{
-			InputMapping mapping = m_inputs[i]	;
-			(this->*(mapping.InputFunc))();
-		}
-	}
-	m_dropTimer -= dt;
-	
-	bool keyPressed = false;
+		InputMapping& mapping = m_inputs[i];
+		if (sf::Keyboard::isKeyPressed(mapping.key))
+		{			
+			if (!mapping.m_isHeld || mapping.m_timeHeld == 0.0f)
+			{
+				(this->*(mapping.InputFunc))();
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-	{			
-		keyPressed = true;
-		if (m_repeatTimer <= 0.0f)
-		{
-			m_repeatTimer = INPUT_REPEAT_INTERVAL;
-			
-		}
-	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-	{
-		keyPressed = true;
-		if (m_repeatTimer <= 0.0f)
-		{
-			m_repeatTimer = INPUT_REPEAT_INTERVAL;
-			if (m_currentPiece)
-			{
-				m_currentPiece->Move(1, 0);
-			}
-		}
-	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-	{
-		keyPressed = true;
-		if (m_repeatTimer <= 0.0f)
-		{
-			m_repeatTimer = INPUT_REPEAT_INTERVAL;
-			if (m_currentPiece)
-			{
-				m_currentPiece->Move(-1, 0);
-			}
-		}
-	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-	{
-		keyPressed = true;
-		if (m_repeatTimer <= 0.0f)
-		{
-			m_repeatTimer = INPUT_REPEAT_INTERVAL;
-			if (m_currentPiece)
-			{
-				if (!m_currentPiece->Move(0, 1))
+				// First time pressing, introduce a delay
+				if (!mapping.m_isHeld)
 				{
-					DropCurrentPiece();
+					mapping.m_timeHeld -= INPUT_REPEAT_START_DELAY;
 				}
-			}
-		}
-	}
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-	{
-		keyPressed = true;
-		if (m_repeatTimer <= 0.0f)
-		{
-			m_repeatTimer = INPUT_REPEAT_INTERVAL;
-			DropCurrentPiece();
-		}
-	}
-	else
-	{
-		// Make this zero so that every time you release the key you can move
-		m_repeatTimer = 0.0f;
-		m_repeatStartTimer = INPUT_REPEAT_START_DELAY;
-	}
 
-	if (keyPressed)
-	{
-		m_repeatStartTimer -= dt;
-		if (m_repeatStartTimer <= 0.0f)
+				mapping.m_isHeld = true;
+			}			
+			
+			if (mapping.m_isHeld)
+			{
+				mapping.m_timeHeld += dt;
+
+				if (mapping.m_timeHeld >= INPUT_REPEAT_INTERVAL)
+				{
+					mapping.m_timeHeld = 0.0f;					
+				}
+			}			
+		}
+		else
 		{
-			m_repeatTimer -= dt;
+			mapping.m_isHeld = false;
+			mapping.m_timeHeld = 0.0f;
 		}
 	}
-
+	
 	if (m_currentPiece != NULL)
 	{
 		m_currentPiece->m_originRowIdx += DROP_SPEED * dt;
