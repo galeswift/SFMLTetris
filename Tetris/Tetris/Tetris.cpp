@@ -400,7 +400,7 @@ void Tetris::Init()
 		for (int j=0 ; j < NUM_ROWS ; j++)
 		{
 			sf::RectangleShape& grid = m_grid[i][j].m_backgroundShape;			
-			grid.setOutlineColor(sf::Color::White);
+			grid.setOutlineColor(sf::Color(255,255,255,50));
 			grid.setFillColor(sf::Color(0,0,0));
 			grid.setOutlineThickness(1.0f);
 			grid.setOrigin(sf::Vector2f(0.5f, 0.5f));
