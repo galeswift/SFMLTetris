@@ -160,8 +160,8 @@ void Piece::Drop()
 
 void Piece::PlaceIntoHolding()
 {
-	m_originColIdx = -4;
-	m_originRowIdx = 0;
+	m_originColIdx = -5;
+	m_originRowIdx = 1;
 }
 
 void Piece::PlaceIntoGrid()
@@ -229,7 +229,8 @@ void Piece::Draw(sf::RenderWindow* window, bool ghost)
 Tetris::Tetris() :
 	m_currentPiece(NULL) ,
 	m_heldPiece(NULL) ,
-	m_canSwapPiece(true)
+	m_canSwapPiece(true) ,
+	m_isRunning(true)
 {
 	for (int i = 0; i < NUM_PREVIEW_PIECES; i++)
 	{
@@ -508,6 +509,13 @@ void Tetris::InitKeyBindings()
 	// Input bindings
 	{
 		InputMapping mapping;
+		mapping.key = sf::Keyboard::Escape;
+		mapping.InputFunc = &Tetris::KeyExit;
+		m_inputs.push_back(mapping);
+	}
+
+	{
+		InputMapping mapping;
 		mapping.key = sf::Keyboard::Up;
 		mapping.InputFunc = &Tetris::KeyRotate;
 		m_inputs.push_back(mapping);
@@ -547,6 +555,11 @@ void Tetris::InitKeyBindings()
 		mapping.InputFunc = &Tetris::KeySwap;
 		m_inputs.push_back(mapping);
 	}
+}
+
+void Tetris::KeyExit()
+{
+	m_isRunning = false;
 }
 
 void Tetris::KeyRotate()
@@ -683,6 +696,14 @@ void Tetris::Draw(sf::RenderWindow* window)
 	previewContainer.setOutlineColor(sf::Color(70, 70, 70, 255));
 	window->draw(previewContainer);
 
+	sf::RectangleShape swapContainer;
+	swapContainer.setSize(sf::Vector2f(GRID_SIZE * 5, GRID_SIZE * 5));
+	swapContainer.setOutlineThickness(10.0f);
+	swapContainer.setPosition(fieldOrigin + sf::Vector2f( - GRID_SIZE * 7, swapContainer.getOutlineThickness()));
+	swapContainer.setFillColor(sf::Color(128, 128, 128, 255));
+	swapContainer.setOutlineColor(sf::Color(70, 70, 70, 255));
+	window->draw(swapContainer);
+
 	for (int i=0 ; i < NUM_COLS ; i++)
 	{
 		for (int j=0 ; j < NUM_ROWS ; j++)
@@ -782,15 +803,20 @@ void Tetris::DropRow(int row)
 	}
 }
 
+bool Tetris::IsRunning()
+{
+	return m_isRunning;
+}
+
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML works!");  
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML TETRIS");  
 
 	Tetris game;
 	game.Init();
 	sf::Clock clock;
 
-    while (window.isOpen())
+    while (window.isOpen() && game.IsRunning())
     {
         sf::Event event;
         while (window.pollEvent(event))

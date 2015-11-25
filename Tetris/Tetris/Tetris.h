@@ -98,8 +98,10 @@ public:
 	void DropCurrentPiece();
 	void ClearRow(int row);
 	void DropRow(int row);	
+	bool IsRunning();
 
 	// Input mappings
+	void KeyExit();
 	void KeyRotate();
 	void KeyMoveLeft();
 	void KeyMoveRight();
@@ -114,5 +116,8 @@ public:
 	float m_repeatTimer;
 	float m_repeatStartTimer;
 	bool m_canSwapPiece;
+	bool m_isRunning;
 	std::vector<InputMapping> m_inputs;
 };
+
+int main();
