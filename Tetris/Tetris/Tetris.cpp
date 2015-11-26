@@ -381,14 +381,18 @@ Piece* Tetris::CreatePiece(PieceType type)
 	outlineColor.g *= 0.75f;
 	outlineColor.b *= 0.75f;
 	for (int i = 0; i < 4; i++)
-	{
-		sf::RectangleShape& grid = result->m_blocks[i].shape;
-		grid.setFillColor(pieceColor);
-		grid.setOutlineColor(outlineColor);
-		grid.setOutlineThickness(2.0f);
-		grid.setSize(sf::Vector2f(GRID_SIZE - grid.getOutlineThickness(), GRID_SIZE - grid.getOutlineThickness()));
+	{		
+		FillPieceShape(result->m_blocks[i].shape, pieceColor, outlineColor);		
 	}
 	return result;
+}
+
+void Tetris::FillPieceShape(sf::RectangleShape& grid, sf::Color& pieceColor, sf::Color& outlineColor)
+{	
+	grid.setFillColor(pieceColor);
+	grid.setOutlineColor(outlineColor);
+	grid.setOutlineThickness(2.0f);
+	grid.setSize(sf::Vector2f(GRID_SIZE - grid.getOutlineThickness(), GRID_SIZE - grid.getOutlineThickness()));
 }
 
 void Tetris::Init()
@@ -516,6 +520,13 @@ void Tetris::InitKeyBindings()
 
 	{
 		InputMapping mapping;
+		mapping.key = sf::Keyboard::LAlt;
+		mapping.InputFunc = &Tetris::KeyGarbage;
+		m_inputs.push_back(mapping);
+	}
+
+	{
+		InputMapping mapping;
 		mapping.key = sf::Keyboard::Up;
 		mapping.InputFunc = &Tetris::KeyRotate;
 		m_inputs.push_back(mapping);
@@ -560,6 +571,11 @@ void Tetris::InitKeyBindings()
 void Tetris::KeyExit()
 {
 	m_isRunning = false;
+}
+
+void Tetris::KeyGarbage()
+{
+	AddGarbage(4);
 }
 
 void Tetris::KeyRotate()
@@ -798,6 +814,36 @@ void Tetris::DropRow(int row)
 				m_grid[i][row + 1].m_block.shape = m_grid[i][row].m_block.shape;
 				m_grid[i][row + 1].m_isFilled = true;
 				m_grid[i][row].m_isFilled = false;
+			}
+		}
+	}
+}
+
+void Tetris::AddGarbage(int numRows)
+{
+	for (int i = 0; i < (NUM_ROWS - numRows); i++)
+	{
+		for (int k = 0; k < NUM_COLS; k++)
+		{
+			m_grid[k][i].m_isFilled = m_grid[k][i + numRows].m_isFilled;
+			m_grid[k][i].m_block.shape = m_grid[k][i + numRows].m_block.shape;
+		}
+	}
+	
+	for (int i = (NUM_ROWS - numRows); i < NUM_ROWS; i++)
+	{
+		int holeIdx = rand() % NUM_COLS;
+		for (int k = 0; k < NUM_COLS; k++)
+		{
+			// Pick a hole
+			if (k != holeIdx)
+			{
+				m_grid[k][i].m_isFilled = true;
+				FillPieceShape(m_grid[k][i].m_block.shape, sf::Color(255, 255, 255, 255), sf::Color(128, 128, 128, 255));
+			}
+			else
+			{
+				m_grid[k][i].m_isFilled = false;
 			}
 		}
 	}

@@ -89,6 +89,8 @@ class Tetris
 public:
 	Tetris();
 	Piece* CreatePiece(PieceType type);
+	void FillPieceShape(sf::RectangleShape & grid, sf::Color & pieceColor, sf::Color & outlineColor);
+
 	void Init();
 	void Reset();
 	void CreateNewPiece(bool deleteCurrent);
@@ -98,10 +100,12 @@ public:
 	void DropCurrentPiece();
 	void ClearRow(int row);
 	void DropRow(int row);	
+	void AddGarbage(int numRows);
 	bool IsRunning();
 
 	// Input mappings
 	void KeyExit();
+	void KeyGarbage();
 	void KeyRotate();
 	void KeyMoveLeft();
 	void KeyMoveRight();
