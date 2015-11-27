@@ -1019,7 +1019,7 @@ TetrisServer::~TetrisServer()
 void TetrisServer::Loop()
 {
 	// This sleep keeps RakNet responsive
-	RakSleep(30);
+	RakSleep(16);
 	
 	// GetPacketIdentifier returns this
 	unsigned char packetIdentifier;
@@ -1069,9 +1069,25 @@ void TetrisServer::Loop()
 			printf("ID_CONNECTION_LOST from %s\n", p->systemAddress.ToString(true));;
 			break;
 
-		default:
+		default:			
 			break;
 		}
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::B))
+	{
+
+		// Message now holds what we want to broadcast
+		char message[2048] = "Hello!";
+		
+		// message2 is the data to send
+		// strlen(message2)+1 is to send the null terminator
+		// HIGH_PRIORITY doesn't actually matter here because we don't use any other priority
+		// RELIABLE_ORDERED means make sure the message arrives in the right order
+		// We arbitrarily pick 0 for the ordering stream
+		// RakNet::UNASSIGNED_SYSTEM_ADDRESS means don't exclude anyone from the broadcast
+		// true means broadcast the message to everyone connected
+		m_interface->Send(message, (const int)strlen(message) + 1, HIGH_PRIORITY, RELIABLE_ORDERED, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 	}
 }
 
