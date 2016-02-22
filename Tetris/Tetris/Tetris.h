@@ -1,16 +1,18 @@
-#include <SFML/Graphics.hpp>
 
 #define NUM_COLS 10
 #define NUM_ROWS 22
-#define GRID_SIZE 20
+#define GRID_SIZE 25
 #define FIELD_WIDTH (GRID_SIZE * NUM_COLS)
 #define FIELD_HEIGHT (GRID_SIZE * NUM_ROWS)
 #define FIELD_ORIGIN_X 300
 #define FIELD_ORIGIN_Y 100
 #define DROP_SPEED 0.5f
+#define MAX_DROP_SPEED 16.0f
 #define NUM_PREVIEW_PIECES 3
 #define INPUT_REPEAT_START_DELAY 0.5f
 #define INPUT_REPEAT_INTERVAL 0.1f
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 
 class Tetris;
 
@@ -92,20 +94,24 @@ public:
 	void FillPieceShape(sf::RectangleShape & grid, sf::Color & pieceColor, sf::Color & outlineColor);
 
 	void Init();
+	void InitResources();
+	void InitKeyBindings();
 	void Reset();
 	void CreateNewPiece(bool deleteCurrent);
-	void InitKeyBindings();
 	void Update(float dt);
 	void Draw(sf::RenderWindow* window);
 	void DropCurrentPiece();
 	void ClearRow(int row);
+	void UpdateCurrentLevel();
 	void DropRow(int row);	
 	void AddGarbage(int numRows);
 	bool IsRunning();
+	float GetDropSpeed();
 
 	// Input mappings
 	void KeyExit();
 	void KeyGarbage();
+	void KeyClearRow();
 	void KeyRotate();
 	void KeyMoveLeft();
 	void KeyMoveRight();
@@ -119,48 +125,12 @@ public:
 	Piece* m_previewPieces[NUM_PREVIEW_PIECES];
 	float m_repeatTimer;
 	float m_repeatStartTimer;
+	float m_levelDropSpeed;
 	bool m_canSwapPiece;
 	bool m_isRunning;
+	int m_clearedRows;
+	int m_currentLevel;
+
+	sf::Font m_mainFont;
 	std::vector<InputMapping> m_inputs;
-};
-
-namespace Raknet
-{
-	struct Packet;
-	class RakPeerInterface;
-}
-
-class TetrisNetworkBase
-{
-public:
-	virtual bool Init() = 0;
-	virtual bool IsServer() = 0;
-	virtual void Loop() = 0;
-	virtual ~TetrisNetworkBase() {};
-	
-	// Holds packets
-	RakNet::Packet* p;
-	RakNet::SystemAddress m_clientID;
-	RakNet::RakPeerInterface* m_interface;
-};
-
-class TetrisClient : public TetrisNetworkBase
-{
-public:
-	TetrisClient(std::string& ipAddr);
-	virtual ~TetrisClient();
-	bool Init() override;
-	bool IsServer() { return false;	}
-	void Loop() override;
-
-	std::string m_ipAddress;	
-};
-
-class TetrisServer : public TetrisNetworkBase
-{
-public:
-	virtual ~TetrisServer();
-	bool Init() override;	
-	void Loop() override;
-	bool IsServer() { return true; }
 };

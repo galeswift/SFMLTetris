@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <string>
+#include <SFML/Graphics.hpp>
+
 #include "RakNetTypes.h"
 
 
