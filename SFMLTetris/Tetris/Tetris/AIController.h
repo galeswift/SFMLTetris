@@ -1,13 +1,33 @@
 #pragma once
 
+#include "AICommon.h"
+#include "System.h"
+
+class Tetris;
+
+#define AI_CONTROLLER_UPDATE_FREQUENCY (.1f)
+
 // Controls the movement of a piece based on a desired position
-class AIController
+class AIController : public System
 {
 
 public:
-	AIController(Tetris* m_tetrisBoard);
+	AIController(Tetris* tetrisBoard);
 	void Update(float dt);
+	void SetCurrentMove(DesiredMoveSet& move) 
+	{ 
+		if (move.id != m_currentMove.id)
+		{
+			m_currentMove = move;
+		}
+	}	
+	bool NeedsNewMove()
+	{
+		return m_currentMove.used;
+	}
 
 private:
-	Tetris* m_tetrisBoard;
+	Tetris* m_tetrisBoard;	
+	DesiredMoveSet m_currentMove;
+	float m_timeUntilUpdate;
 };

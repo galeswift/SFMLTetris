@@ -1,51 +1,73 @@
 #pragma once
 
+#include "AICommon.h"
+#include "System.h"
+#include <string>
+
+#define NUM_LOOKAHEAD (3)
+#define AI_UPDATE_RATE_SECONDS (0.5f)
 class Tetris;
 
+class AIDebug
+{
+public:
+	float m_lastScore;
+	std::string m_description;
+};
 class AIHeuristic
 {
 public:
 	AIHeuristic(float scalar)
-		: m_scalar(scalar)
+		: m_scalar(scalar)		
 	{
 
 	}
 
-	virtual float GetScore(Tetris* m_tetrisBoard) = 0;
-	float m_scalar;
+	virtual float GetScore(const Tetris* original, Tetris* newTetrisBoard) = 0;
+	float m_scalar;	
 };
 
-class AIHeuristic_AggregateHeight
+class AIHeuristic_AggregateHeight : public AIHeuristic
 {
-public:
-	virtual float GetScore(Tetris* m_tetrisBoard) { return 1.0f; }
+public:	
+	using AIHeuristic::AIHeuristic;
+	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
 };
 
-class AIHeuristic_CompletedLines
+class AIHeuristic_CompletedLines : public AIHeuristic
 {
 public:
-	virtual float GetScore(Tetris* m_tetrisBoard) { return 1.0f; }
+	using AIHeuristic::AIHeuristic;
+	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
 };
 
-class AIHeuristic_Holes
+class AIHeuristic_Holes : public AIHeuristic
 {
 public:
-	virtual float GetScore(Tetris* m_tetrisBoard) { return 1.0f; }
+	using AIHeuristic::AIHeuristic;
+	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
 };
 
-class AIHeuristic_Bumpiness
+class AIHeuristic_Bumpiness : public AIHeuristic
 {
 public:
-	virtual float GetScore(Tetris* m_tetrisBoard) { return 1.0f; }
+	using AIHeuristic::AIHeuristic;
+	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
 };
 
-class AIEvaluator
+class AIEvaluator : public System
 {
 public:
-	AIEvaluator(Tetris* m_tetrisBoard);
+	AIEvaluator(Tetris* tetrisBoard);
+	void FindBestMove();
+	bool CanFindMove() { return m_timeSinceLastUpdate > AI_UPDATE_RATE_SECONDS; }
 	void Update(float dt);
-
+	DesiredMoveSet GetBestMove() { return m_bestMoves[0]; }
+	std::vector<AIDebug> m_debugHeuristics;
 private:
+	DesiredMoveSet _FindBestMove(Tetris* tetrisBoard, int lookaheads);	
 	Tetris* m_tetrisBoard;
-	std::vector<AIHeuristic*> m_heuristics;
+	std::vector<AIHeuristic*> m_heuristics;	
+	float m_timeSinceLastUpdate;
+	DesiredMoveSet m_bestMoves[NUM_LOOKAHEAD];
 };

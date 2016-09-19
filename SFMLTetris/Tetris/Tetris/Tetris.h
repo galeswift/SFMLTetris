@@ -1,18 +1,4 @@
-
-#define NUM_COLS 10
-#define NUM_ROWS 22
-#define GRID_SIZE 25
-#define FIELD_WIDTH (GRID_SIZE * NUM_COLS)
-#define FIELD_HEIGHT (GRID_SIZE * NUM_ROWS)
-#define FIELD_ORIGIN_X 300
-#define FIELD_ORIGIN_Y 100
-#define DROP_SPEED 0.5f
-#define MAX_DROP_SPEED 16.0f
-#define NUM_PREVIEW_PIECES 3
-#define INPUT_REPEAT_START_DELAY 0.5f
-#define INPUT_REPEAT_INTERVAL 0.1f
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 720
+#include "Constants.h"
 
 class Tetris;
 
@@ -33,15 +19,30 @@ class Piece;
 class Block
 {
 public:	
+	Block()
+		: rowIdx(-1)
+		, colIdx(-1)		
+	{
+
+	}
+
+	sf::Color m_fillColor;
+	sf::Color m_outlineColor;
+
 	int rowIdx;
-	int colIdx;
-	sf::RectangleShape shape;
-	void Draw(sf::RenderWindow* window, int colOffset, int rowOffset, bool ghost);
+	int colIdx;		
+	void Draw(sf::RenderWindow* window, sf::RectangleShape& blockShape, int colOffset, int rowOffset, bool ghost);
 };
 
 class Piece
 {
 public:
+	Piece() 
+	: m_board(NULL)
+	, m_originRotations(0)
+	, m_id(0)
+	{};
+	Piece(const Piece& other);
 	void Draw(sf::RenderWindow* window, bool ghost);
 	bool Rotate(bool right);
 	void Init(Tetris* board);
@@ -51,14 +52,16 @@ public:
 	void PlaceIntoHolding();
 	void PlaceIntoGrid();
 	void PlaceIntoPreview(int slot);
-
+	int MaxRotations() { return m_maxRotations;  }
 	Tetris* m_board;
 	Block m_blocks[4];
 	float m_originRowIdx;
 	float m_originColIdx;
 	int m_pivotRow;
 	int m_pivotCol;
-
+	int m_maxRotations;
+	int m_originRotations;
+	int m_id;
 	PieceType m_type;
 
 private:
@@ -69,8 +72,12 @@ private:
 class GridCell
 {
 public:
-	Block m_block;
-	sf::RectangleShape m_backgroundShape;
+	GridCell()		
+		: m_isFilled(false)
+	{
+
+	}
+	Block m_block;	
 	bool m_isFilled;
 };
 
@@ -86,14 +93,23 @@ struct InputMapping
 	void(Tetris::*InputFunc)();
 };
 
+class TetrisGrid
+{
+public:
+	sf::RectangleShape m_backgroundShape;
+	GridCell m_cells[NUM_COLS][NUM_ROWS];
+};
+
 class Tetris
 {
 public:
 	Tetris();
+	~Tetris();
+	void Clone(const Tetris* other);
 	Piece* CreatePiece(PieceType type);
-	void FillPieceShape(sf::RectangleShape & grid, sf::Color & pieceColor, sf::Color & outlineColor);
+	void FillPieceShape(Block* block, sf::Color & pieceColor, sf::Color & outlineColor);
 
-	void Init();
+	void Init(bool isPlayer, int rows, int cols);
 	void InitResources();
 	void InitKeyBindings();
 	void Reset();
@@ -107,7 +123,6 @@ public:
 	void AddGarbage(int numRows);
 	bool IsRunning();
 	float GetDropSpeed();
-
 	// Input mappings
 	void KeyExit();
 	void KeyGarbage();
@@ -119,18 +134,24 @@ public:
 	void KeyDrop();
 	void KeySwap();
 
-	GridCell m_grid[NUM_COLS][NUM_ROWS];
+	TetrisGrid m_grid;	
 	Piece* m_currentPiece;		
 	Piece* m_heldPiece;
 	Piece* m_previewPieces[NUM_PREVIEW_PIECES];
+	sf::RectangleShape m_blockShape;	
 	float m_repeatTimer;
 	float m_repeatStartTimer;
 	float m_levelDropSpeed;
 	bool m_canSwapPiece;
 	bool m_isRunning;
+	bool m_isClone;
 	int m_clearedRows;
 	int m_currentLevel;
-
+	int m_pieceID;
+	int m_rows;
+	int m_cols;
+	
 	sf::Font m_mainFont;
+	sf::Font m_debugFont;
 	std::vector<InputMapping> m_inputs;
 };
