@@ -7,15 +7,21 @@ AIEvaluator::AIEvaluator(Tetris* tetrisBoard)
 	: m_tetrisBoard(tetrisBoard)
 {
 	// stagger updates
-	m_timeSinceLastUpdate = AI_UPDATE_RATE_SECONDS + 0.5f *  (float)(rand()) / RAND_MAX;
-	m_heuristics.push_back(new AIHeuristic_AggregateHeight(-.75));
-//	m_heuristics.push_back(new AIHeuristic_CompletedLines(2));
-	m_heuristics.push_back(new AIHeuristic_Holes(-5));
-	m_heuristics.push_back(new AIHeuristic_Bumpiness(-0.5));
+	m_timeSinceLastUpdate = 0.0f + rand()/(float)RAND_MAX;
+	m_heuristics.push_back(new AIHeuristic_AggregateHeight(-1.10));
+	//m_heuristics.push_back(new AIHeuristic_CompletedLines(2));
+	//m_heuristics.push_back(new AIHeuristic_HighestCol(-2.75));
+	m_heuristics.push_back(new AIHeuristic_GameLoss(-1));
+	m_heuristics.push_back(new AIHeuristic_Holes(-5.8));
+	m_heuristics.push_back(new AIHeuristic_Blockade(-.62));
+	m_heuristics.push_back(new AIHeuristic_Bumpiness(-1.0));
 
-	m_debugHeuristics.push_back(AIDebug{0.0f, "Height"});
+	m_debugHeuristics.push_back(AIDebug{0.0f, "Agg Height"});
 	//m_debugHeuristics.push_back(AIDebug{ 0.0f, "Completed Lines" });
+	//m_debugHeuristics.push_back(AIDebug{ 0.0f, "Highest Column" });
+	m_debugHeuristics.push_back(AIDebug{ 0.0f, "Game Loss" });
 	m_debugHeuristics.push_back(AIDebug{ 0.0f, "Holes" });
+	m_debugHeuristics.push_back(AIDebug{ 0.0f, "Blockade" });
 	m_debugHeuristics.push_back(AIDebug{ 0.0f, "Bumpiness" });
 }
 
@@ -29,10 +35,21 @@ void AIEvaluator::Update(float dt)
 void AIEvaluator::FindBestMove()
 {
 	m_timeSinceLastUpdate = 0.0f;
-	m_bestMoves[0] = _FindBestMove(m_tetrisBoard, NUM_LOOKAHEAD);	
+
+	// Stop AI when game is lost
+	if (m_tetrisBoard->m_resetCount <= 1)
+	{
+		m_bestMoves[0] = _FindBestMove(m_tetrisBoard, NUM_LOOKAHEAD, false);
+		DesiredMoveSet heldMove = _FindBestMove(m_tetrisBoard, NUM_LOOKAHEAD, true);
+
+		if ( heldMove.score > m_bestMoves[0].score)
+		{						
+			m_bestMoves[0] = heldMove;
+		}		
+	}
 }
 
-DesiredMoveSet AIEvaluator::_FindBestMove(Tetris* tetrisBoard, int numLookaheads)
+DesiredMoveSet AIEvaluator::_FindBestMove(Tetris* tetrisBoard, int numLookaheads, bool holdPiece)
 {
 	DesiredMoveSet result;
 
@@ -42,6 +59,7 @@ DesiredMoveSet AIEvaluator::_FindBestMove(Tetris* tetrisBoard, int numLookaheads
 	{
 		return result;
 	}
+
 	for (int i = 0; i < tetrisBoard->m_cols; i++)
 	{
 		// Try all rotations	
@@ -51,6 +69,12 @@ DesiredMoveSet AIEvaluator::_FindBestMove(Tetris* tetrisBoard, int numLookaheads
 			// Make a copy of the board
 			Tetris boardCopy;
 			boardCopy.Clone(tetrisBoard);
+
+			if (holdPiece)
+			{
+				boardCopy.KeySwap();
+				result.swapPiece = true;
+			}
 
 			for (int numRotations = 0; numRotations < j; numRotations++)
 			{
@@ -76,7 +100,7 @@ DesiredMoveSet AIEvaluator::_FindBestMove(Tetris* tetrisBoard, int numLookaheads
 			DesiredMoveSet lookaheadMove;
 			if (numLookaheads > 0)
 			{				
-				lookaheadMove = _FindBestMove(&boardCopy, numLookaheads);
+				lookaheadMove = _FindBestMove(&boardCopy, numLookaheads, false);
 				currentScore += lookaheadMove.score;
 			}
 
@@ -88,9 +112,9 @@ DesiredMoveSet AIEvaluator::_FindBestMove(Tetris* tetrisBoard, int numLookaheads
 				result.id = m_tetrisBoard->m_currentPiece->m_id;
 				
 				int index = 0;
+
 				for (auto h : m_heuristics)
 				{
-
 					if (numLookaheads == NUM_LOOKAHEAD - 1)
 					{
 						float score = h->GetScore(m_tetrisBoard, &boardCopy);
@@ -119,13 +143,8 @@ float AIHeuristic_AggregateHeight::GetScore(const Tetris* original, Tetris* tetr
 		for (int j = 0; j < tetrisBoard->m_rows; j++)
 		{
 			if (tetrisBoard->m_grid.m_cells[i][j].m_isFilled)
-			{
-				int height = tetrisBoard->m_rows - j;
-				if (result < height)
-				{
-					result = height;
-				}
-
+			{			
+				result += tetrisBoard->m_rows - j;		
 				break;				
 			}
 		}
@@ -190,6 +209,75 @@ float AIHeuristic_Bumpiness::GetScore(const Tetris* original, Tetris* tetrisBoar
 		prevHeight = height;
 	}
 
+
+	return m_scalar * result;
+}
+
+float AIHeuristic_HighestCol::GetScore(const Tetris * original, Tetris * tetrisBoard)
+{
+	float result = 0.0f;
+	int highest = 0;
+	for (int i = 0; i < tetrisBoard->m_cols; i++)
+	{
+		for (int j = 0; j < tetrisBoard->m_rows; j++)
+		{
+			if (tetrisBoard->m_grid.m_cells[i][j].m_isFilled)
+			{
+				int height = tetrisBoard->m_rows - j;
+				if (highest < height)
+				{
+					highest = height;
+					if (height + 6 > tetrisBoard->m_rows)
+					{
+						result = height + 6;
+					}
+					else
+					{
+						result = height;
+					}
+				}
+
+				break;
+			}
+		}
+	}
+
+	return m_scalar * result;
+}
+
+float AIHeuristic_GameLoss::GetScore(const Tetris * original, Tetris * tetrisBoard)
+{
+	float result = 0.0f;
+	if (tetrisBoard->m_resetCount > original->m_resetCount)
+	{
+		result = -100000000;
+	}
+	return result;
+}
+
+float AIHeuristic_Blockade::GetScore(const Tetris * original, Tetris * tetrisBoard)
+{
+	float result = 0.0f;
+
+	for (int i = 0; i < tetrisBoard->m_cols; i++)
+	{
+		int blockadeCount = 0;
+		bool bFoundBlock = false;
+		for (int j = 0; j < tetrisBoard->m_rows; j++)
+		{
+			GridCell& gridCell = tetrisBoard->m_grid.m_cells[i][j];
+			if (gridCell.m_isFilled)
+			{
+				blockadeCount++;
+				bFoundBlock = true;
+			}
+			else if (bFoundBlock)
+			{
+				result += blockadeCount;
+				break;
+			}
+		}
+	}
 
 	return m_scalar * result;
 }

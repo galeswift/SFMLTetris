@@ -261,6 +261,7 @@ Tetris::Tetris()
 	, m_levelDropSpeed(0.0f)	
 	, m_isClone(false)
 	, m_pieceID(0)
+	, m_resetCount(0)
 {
 	for (int i = 0; i < NUM_PREVIEW_PIECES; i++)
 	{
@@ -304,6 +305,7 @@ void Tetris::Clone(const Tetris * other)
 	m_pieceID = other->m_pieceID;
 	m_rows = other->m_rows;
 	m_cols = other->m_cols;
+	m_resetCount = other->m_resetCount;
 }
 
 Piece* Tetris::CreatePiece(PieceType type)
@@ -545,9 +547,12 @@ void Tetris::Reset()
 			m_grid.m_cells[i][j].m_isFilled = false;
 		}
 	}	
-
+	
 	CreateNewPiece(true);
+	m_resetCount++;
 	m_repeatTimer = INPUT_REPEAT_INTERVAL;	
+	m_currentLevel = 1;
+	//m_clearedRows = 0;
 }
 
 void Tetris::CreateNewPiece(bool deleteCurrent)
@@ -605,12 +610,12 @@ void Tetris::CreateNewPiece(bool deleteCurrent)
 void Tetris::InitKeyBindings()
 {
 	// Input bindings
-	{
+	/*{
 		InputMapping mapping;
 		mapping.key = sf::Keyboard::Escape;
 		mapping.InputFunc = &Tetris::KeyExit;
 		m_inputs.push_back(mapping);
-	}
+	}*/
 
 	{
 		InputMapping mapping;
@@ -883,7 +888,7 @@ void Tetris::Draw(sf::RenderWindow* window)
 	}
 	// Draw 'HUD'
 	sf::Text text;
-	text.setPosition(fieldOrigin + sf::Vector2f(250, 350));
+	text.setPosition(fieldOrigin + sf::Vector2f(260, 450));
 	text.setFont(m_mainFont);
 	text.setCharacterSize(18);
 	text.setColor(sf::Color::White);

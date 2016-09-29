@@ -16,13 +16,21 @@ GameManager::~GameManager()
 	}	
 }
 
-void GameManager::Update(sf::RenderWindow* window, float dt)
+void GameManager::Update(float dt)
+{
+	for (auto T : m_games)
+	{
+		T->Update(dt);
+	}
+}
+
+void GameManager::Draw(sf::RenderWindow * window, float dt)
 {
 	window->clear(sf::Color(40, 40, 40));
 
 	for (auto T : m_games)
 	{
-		T->Update(window, dt);
+		T->Draw(window, dt);
 	}
 }
 
@@ -35,7 +43,7 @@ bool GameManager::IsRunning()
 	return false;
 }
 
-void GameInfo::Update(sf::RenderWindow * window, float dt)
+void GameInfo::Update(float dt)
 {
 	m_game->Update(dt);
 
@@ -44,13 +52,17 @@ void GameInfo::Update(sf::RenderWindow * window, float dt)
 		S->Update(dt);
 	}
 
+}
+
+void GameInfo::Draw(sf::RenderWindow * window, float dt)
+{
 	window->setView(m_view);
 	m_game->Draw(window);
 }
 
-void AIGameInfo::Update(sf::RenderWindow * window, float dt)
+void AIGameInfo::Update(float dt)
 {
-	GameInfo::Update(window, dt);
+	GameInfo::Update(dt);
 	if (m_evaluator && 
 		m_evaluator->CanFindMove() && 
 		m_controller && 
@@ -58,20 +70,34 @@ void AIGameInfo::Update(sf::RenderWindow * window, float dt)
 	{
 		m_evaluator->FindBestMove();
 		m_controller->SetCurrentMove(m_evaluator->GetBestMove());
+/*		printf("-----------\n");
+
+		for (int i = 0; i < m_evaluator->m_debugHeuristics.size(); i++)
+		{
+			printf("Score [%s] [%.2f]\n", m_evaluator->m_debugHeuristics[i].m_description.c_str(), m_evaluator->m_debugHeuristics[i].m_lastScore);
+		}*/
 	}
 
+}
+
+void AIGameInfo::Draw(sf::RenderWindow * window, float dt)
+{
+	GameInfo::Draw(window, dt);
 	// Debug
-	sf::Text text;	
+	sf::Text text;
 	text.setFont(m_game->m_debugFont);
-	text.setCharacterSize(18);
+	text.setCharacterSize(16);
 	text.setColor(sf::Color::White);
 
-	for (int i = 0; i < m_evaluator->m_debugHeuristics.size(); i++)
-	{		
-		std::string textStr = m_evaluator->m_debugHeuristics[i].m_description;
-		textStr += " " + std::to_string(m_evaluator->m_debugHeuristics[i].m_lastScore);
-		text.setPosition(sf::Vector2f(350, 150 + i * 30));
-		text.setString(textStr.c_str());
-		window->draw(text);
+	if (m_evaluator)
+	{
+		for (int i = 0; i < m_evaluator->m_debugHeuristics.size(); i++)
+		{
+			std::string textStr = m_evaluator->m_debugHeuristics[i].m_description;
+			textStr += " " + std::to_string(m_evaluator->m_debugHeuristics[i].m_lastScore);
+			text.setPosition(sf::Vector2f(50, 250 + i * 20));
+			text.setString(textStr.c_str());
+			window->draw(text);
+		}
 	}
 }

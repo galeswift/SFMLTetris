@@ -25,7 +25,8 @@ struct GameInfo
 		}
 	}
 
-	virtual void Update(sf::RenderWindow* window, float dt);
+	virtual void Update(float dt);	
+	virtual void Draw(sf::RenderWindow* window, float dt);
 	Tetris* m_game;
 	std::vector<System*> m_systems;
 	sf::View m_view;
@@ -34,8 +35,8 @@ struct GameInfo
 struct AIGameInfo : public GameInfo
 {
 public:
-	virtual void Update(sf::RenderWindow* window, float dt);
-
+	virtual void Update(float dt);	
+	virtual void Draw(sf::RenderWindow* window, float dt);
 	AIEvaluator* m_evaluator;
 	AIController* m_controller;
 };
@@ -45,7 +46,8 @@ public:
 	~GameManager();
 	template <typename T>
 	T* AddGame(Tetris* game, const sf::FloatRect& rect);	
-	void Update(sf::RenderWindow* window, float dt);
+	void Update(float dt);
+	void Draw(sf::RenderWindow* window, float dt);
 	bool IsRunning();
 
 	std::vector<GameInfo*> m_games;	

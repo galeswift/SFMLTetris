@@ -150,7 +150,8 @@ public:
 	int m_pieceID;
 	int m_rows;
 	int m_cols;
-	
+	int m_resetCount;
+
 	sf::Font m_mainFont;
 	sf::Font m_debugFont;
 	std::vector<InputMapping> m_inputs;

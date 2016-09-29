@@ -9,6 +9,7 @@ public:
 		, id(-1)
 		, numRotations(0)
 		, col(0)
+		, swapPiece(false)
 		, used(false)
 	{
 
@@ -19,5 +20,6 @@ public:
 	int id;
 	int numRotations;
 	int col;
+	bool swapPiece;
 	bool used;
 };

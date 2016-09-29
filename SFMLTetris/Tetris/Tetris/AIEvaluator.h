@@ -4,8 +4,8 @@
 #include "System.h"
 #include <string>
 
-#define NUM_LOOKAHEAD (3)
-#define AI_UPDATE_RATE_SECONDS (0.5f)
+#define NUM_LOOKAHEAD (2)
+#define AI_UPDATE_RATE_SECONDS (0.0f)
 class Tetris;
 
 class AIDebug
@@ -34,6 +34,20 @@ public:
 	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
 };
 
+class AIHeuristic_HighestCol : public AIHeuristic
+{
+public:
+	using AIHeuristic::AIHeuristic;
+	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+};
+
+class AIHeuristic_GameLoss: public AIHeuristic
+{
+public:
+	using AIHeuristic::AIHeuristic;
+	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+};
+
 class AIHeuristic_CompletedLines : public AIHeuristic
 {
 public:
@@ -42,6 +56,14 @@ public:
 };
 
 class AIHeuristic_Holes : public AIHeuristic
+{
+public:
+	using AIHeuristic::AIHeuristic;
+	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+};
+
+
+class AIHeuristic_Blockade : public AIHeuristic
 {
 public:
 	using AIHeuristic::AIHeuristic;
@@ -65,7 +87,7 @@ public:
 	DesiredMoveSet GetBestMove() { return m_bestMoves[0]; }
 	std::vector<AIDebug> m_debugHeuristics;
 private:
-	DesiredMoveSet _FindBestMove(Tetris* tetrisBoard, int lookaheads);	
+	DesiredMoveSet _FindBestMove(Tetris* tetrisBoard, int lookaheads, bool holdPiece);
 	Tetris* m_tetrisBoard;
 	std::vector<AIHeuristic*> m_heuristics;	
 	float m_timeSinceLastUpdate;
