@@ -145,22 +145,40 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AICommon.h" />
-    <ClInclude Include="AIController.h" />
-    <ClInclude Include="AIEvaluator.h" />
+    <ClInclude Include="AIControllerComponent.h" />
+    <ClInclude Include="AIControllerSystem.h" />
+    <ClInclude Include="AIEvaluatorComponent.h" />
+    <ClInclude Include="AIEvaluatorSystem.h" />
+    <ClInclude Include="AIEvaluatorUtil.h" />
+    <ClInclude Include="AIHeuristics.h" />
+    <ClInclude Include="AIMoveSystem.h" />
+    <ClInclude Include="CombatComponent.h" />
+    <ClInclude Include="CombatSystem.h" />
+    <ClInclude Include="Component.h" />
     <ClInclude Include="Constants.h" />
-    <ClInclude Include="Game.h" />
+    <ClInclude Include="ClientGame.h" />
     <ClInclude Include="Networking.h" />
+    <ClInclude Include="PlayerComponent.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Tetris.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AIController.cpp" />
-    <ClCompile Include="AIEvaluator.cpp" />
-    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="AIControllerComponent.cpp" />
+    <ClCompile Include="AIControllerSystem.cpp" />
+    <ClCompile Include="AIEvaluatorSystem.cpp" />
+    <ClCompile Include="AIEvaluatorComponent.cpp" />
+    <ClCompile Include="AIEvaluatorUtil.cpp" />
+    <ClCompile Include="AIHeuristics.cpp" />
+    <ClCompile Include="AIMoveSystem.cpp" />
+    <ClCompile Include="CombatComponent.cpp" />
+    <ClCompile Include="CombatSystem.cpp" />
+    <ClCompile Include="Component.cpp" />
+    <ClCompile Include="ClientGame.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Networking.cpp" />
+    <ClCompile Include="PlayerComponent.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

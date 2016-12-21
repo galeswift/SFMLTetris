@@ -11,6 +11,7 @@
 #include <tchar.h>
 #include <string>
 #include <vector>
+#include <cstdint>
 #include <SFML/Graphics.hpp>
 
 #include "RakNetTypes.h"

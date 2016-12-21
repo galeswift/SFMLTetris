@@ -1,6 +1,5 @@
 #pragma once
 
-
 #define NUM_COLS 10
 #define NUM_ROWS 22
 #define GRID_SIZE 25
@@ -14,3 +13,10 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 #define OUTLINE_THICKNESS (2.0f)
+
+typedef float f32;
+typedef double f64;
+typedef int32_t s32;
+typedef int64_t s64;
+typedef uint32_t u32;
+typedef uint64_t u64;

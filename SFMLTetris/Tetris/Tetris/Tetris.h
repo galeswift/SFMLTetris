@@ -1,3 +1,4 @@
+#include "Component.h"
 #include "Constants.h"
 
 class Tetris;
@@ -95,8 +96,7 @@ struct InputMapping
 
 class TetrisGrid
 {
-public:
-	sf::RectangleShape m_backgroundShape;
+public:	
 	GridCell m_cells[NUM_COLS][NUM_ROWS];
 };
 
@@ -120,7 +120,7 @@ public:
 	void ClearRow(int row);
 	void UpdateCurrentLevel();
 	void DropRow(int row);	
-	void AddGarbage(int numRows);
+	void AddGarbage(int numRows);	
 	bool IsRunning();
 	float GetDropSpeed();
 	// Input mappings
@@ -133,6 +133,9 @@ public:
 	void KeyMoveDown();
 	void KeyDrop();
 	void KeySwap();
+
+	template<typename T>
+	T* GetComponent();
 
 	TetrisGrid m_grid;	
 	Piece* m_currentPiece;		
@@ -151,8 +154,24 @@ public:
 	int m_rows;
 	int m_cols;
 	int m_resetCount;
-
+	int m_lastClearCount;
+	
 	sf::Font m_mainFont;
 	sf::Font m_debugFont;
 	std::vector<InputMapping> m_inputs;
+	std::vector<Component*> m_components;
 };
+
+template<typename T>
+inline T * Tetris::GetComponent()
+{
+	for (auto C : m_components)
+	{
+		T* result = dynamic_cast<T*>(C);
+		if (result)
+		{
+			return result;
+		}
+	}
+	return NULL;
+}

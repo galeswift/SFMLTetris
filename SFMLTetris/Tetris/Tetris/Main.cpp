@@ -1,10 +1,17 @@
 #include "stdafx.h"
 
-#include "AIController.h"
-#include "AIEvaluator.h"
-#include "Game.h"
-#include "Tetris.h"
+#include "AIControllerComponent.h"
+#include "AIControllerSystem.h"
+#include "AIEvaluatorComponent.h"
+#include "AIEvaluatorSystem.h"
+#include "AIMoveSystem.h"
+#include "ClientGame.h"
+#include "CombatComponent.h"
+#include "CombatSystem.h"
+#include "ClientGame.h"
 #include "Networking.h"
+#include "PlayerComponent.h"
+#include "Tetris.h"
 
 TetrisNetworkBase* g_networkPtr;
 
@@ -37,13 +44,30 @@ int main(int argc, char** argv)
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML TETRIS");
 	
 	sf::View playerView;
-	GameManager gameMgr;
-	Tetris* localGame = new Tetris();	
-	localGame->Init(true, NUM_ROWS, NUM_COLS);
-	gameMgr.AddGame<GameInfo>(localGame, sf::FloatRect(0, 0, .5, .5));
 
-	int rows = 2;
-	int cols = 2;
+	Tetris* localGame = new Tetris();
+	localGame->Init(true, NUM_ROWS, NUM_COLS);
+	localGame->m_components.push_back(new PlayerComponent(localGame));
+
+	CombatComponent* playerCombat = new CombatComponent(localGame);
+	localGame->m_components.push_back(playerCombat);
+
+	playerCombat->m_HP = 10;
+	playerCombat->m_MP = 10;
+	playerCombat->m_attack = 2;
+	playerCombat->m_defense = 1;
+	
+	GameInfo* playerGame = g_clientGame.AddGame<GameInfo>(localGame, sf::FloatRect(0, 0, .5, .5));
+	
+	AIEvaluatorSystem* aiPlayer = new AIEvaluatorSystem();
+	AIControllerSystem* aiController = new AIControllerSystem();	
+	g_clientGame.m_systems.push_back(aiPlayer);
+	g_clientGame.m_systems.push_back(aiController);
+	g_clientGame.m_systems.push_back(new AIMoveSystem());
+	g_clientGame.m_systems.push_back(new CombatSystem());	
+	
+	int rows = 1;
+	int cols = 1;
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < cols; j++)
@@ -51,23 +75,24 @@ int main(int argc, char** argv)
 			Tetris* otherGame = new Tetris();			
 			float baseScale = 0.8f;
 			//otherGame->Init(false, rand()%10 + 10, rand()% 5 + 5);
-			otherGame->Init(false, NUM_ROWS, NUM_COLS);
-			AIEvaluator* aiPlayer1 = new AIEvaluator(otherGame);
-			AIController* aiController1 = new AIController(otherGame);
-			//aiController1->SetUpdateFrequency(rand() / (float)RAND_MAX * (i + j * rows + 0.01)* 0.2);
+			otherGame->Init(false, NUM_ROWS, NUM_COLS);			
 			float scaleY = baseScale / rows;
 			float scaleX = baseScale / cols;
 			float scale = scaleX >= scaleY ? scaleX : scaleY;
-			AIGameInfo* aiGame = gameMgr.AddGame<AIGameInfo>(otherGame, sf::FloatRect(.3f + baseScale /cols * j, (0.05 + baseScale / rows) * i, scale, scale));
-			aiGame->m_systems.push_back(aiPlayer1);
-			aiGame->m_systems.push_back(aiController1);
-			aiGame->m_evaluator = aiPlayer1;
-			aiGame->m_controller = aiController1;
+			GameInfo* aiGame = g_clientGame.AddGame<GameInfo>(otherGame, sf::FloatRect(.3f + baseScale /cols * j, (0.05f + baseScale / rows) * i, scale, scale));			
+
+			AIControllerComponent* aiComponent = new AIControllerComponent(otherGame);
+			aiComponent->SetUpdateFrequency(.15f);
+
+			otherGame->m_components.push_back(aiComponent);
+			otherGame->m_components.push_back(new AIEvaluatorComponent(otherGame));
+			otherGame->m_components.push_back(new CombatComponent(otherGame));
 		}
 	}
+
 	bool paused = false;
 	sf::Clock clock;
-	while (window.isOpen() && gameMgr.IsRunning())
+	while (window.isOpen() && g_clientGame.IsRunning())
 	{
 		if (g_networkPtr != NULL)
 		{
@@ -81,9 +106,9 @@ int main(int argc, char** argv)
 			{
 				if (event.key.code == sf::Keyboard::BackSpace)
 				{
-					for (int i = 0; i < gameMgr.m_games.size(); i++)
+					for (int i = 0; i < g_clientGame.m_games.size(); i++)
 					{
-						gameMgr.m_games.at(i)->m_game->KeyGarbage();
+						g_clientGame.m_games.at(i)->m_game->KeyGarbage();
 					}
 				}
 				else if (event.key.code == sf::Keyboard::P)
@@ -98,9 +123,9 @@ int main(int argc, char** argv)
 		sf::Time time = clock.restart();
 		if (!paused)
 		{
-			gameMgr.Update(time.asSeconds());
+			g_clientGame.Update(time.asSeconds());
 		}
-		gameMgr.Draw(&window, time.asSeconds());
+		g_clientGame.Draw(&window, time.asSeconds());
 		window.display();
 	}
 

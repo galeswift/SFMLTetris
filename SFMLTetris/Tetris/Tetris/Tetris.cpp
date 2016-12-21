@@ -261,7 +261,7 @@ Tetris::Tetris()
 	, m_levelDropSpeed(0.0f)	
 	, m_isClone(false)
 	, m_pieceID(0)
-	, m_resetCount(0)
+	, m_resetCount(0)	
 {
 	for (int i = 0; i < NUM_PREVIEW_PIECES; i++)
 	{
@@ -310,7 +310,7 @@ void Tetris::Clone(const Tetris * other)
 
 Piece* Tetris::CreatePiece(PieceType type)
 {	
-//type = SHAPE_T;
+	//type = SHAPE_TETRIS;
 
 	// TODO: Switch based on piece type
 	Piece* result = new Piece();
@@ -483,15 +483,7 @@ void Tetris::Init(bool isPlayer, int rows, int cols)
 	m_rows = rows;
 	m_cols = cols;
 	
-	sf::Vector2f fieldOrigin(FIELD_ORIGIN_X,FIELD_ORIGIN_Y);
-	
-	m_grid.m_backgroundShape.setSize(sf::Vector2f(GRID_SIZE, GRID_SIZE));
-	m_grid.m_backgroundShape.setOutlineColor(sf::Color(255, 255, 255, 50));
-	m_grid.m_backgroundShape.setFillColor(sf::Color(0, 0, 0));
-	m_grid.m_backgroundShape.setOutlineThickness(1.0f);
-	m_grid.m_backgroundShape.setOrigin(sf::Vector2f(0.5f, 0.5f));
-
-	m_blockShape.setSize(sf::Vector2f(GRID_SIZE - OUTLINE_THICKNESS, GRID_SIZE - OUTLINE_THICKNESS));
+	sf::Vector2f fieldOrigin(FIELD_ORIGIN_X,FIELD_ORIGIN_Y);	
 	for (int i=0 ; i < m_cols ; i++)
 	{
 		for (int j=0 ; j < m_rows ; j++)
@@ -552,7 +544,7 @@ void Tetris::Reset()
 	m_resetCount++;
 	m_repeatTimer = INPUT_REPEAT_INTERVAL;	
 	m_currentLevel = 1;
-	//m_clearedRows = 0;
+	m_clearedRows = 0;
 }
 
 void Tetris::CreateNewPiece(bool deleteCurrent)
@@ -617,13 +609,13 @@ void Tetris::InitKeyBindings()
 		m_inputs.push_back(mapping);
 	}*/
 
-	{
+	/*{
 		InputMapping mapping;
 		mapping.key = sf::Keyboard::LAlt;
 		mapping.InputFunc = &Tetris::KeyGarbage;
 		m_inputs.push_back(mapping);
 	}
-
+*/
 
 	{
 		InputMapping mapping;
@@ -847,12 +839,19 @@ void Tetris::Draw(sf::RenderWindow* window)
 	{
 		for (int j=0 ; j < m_rows ; j++)
 		{									
-			m_grid.m_backgroundShape.setPosition(fieldOrigin + sf::Vector2f(i * GRID_SIZE, j*GRID_SIZE));
-			window->draw(m_grid.m_backgroundShape);
+			m_blockShape.setSize(sf::Vector2f(GRID_SIZE, GRID_SIZE));
+			m_blockShape.setOutlineThickness(1.0f);
+			m_blockShape.setOutlineColor(sf::Color(255, 255, 255, 50));
+			m_blockShape.setFillColor(sf::Color(0, 0, 0));
+			m_blockShape.setOrigin(sf::Vector2f(0.5f, 0.5f));
+
+			m_blockShape.setPosition(fieldOrigin + sf::Vector2f(i * GRID_SIZE, j*GRID_SIZE));
+			window->draw(m_blockShape);
 			
 			if (m_grid.m_cells[i][j].m_isFilled)
 			{
-				Block& block = m_grid.m_cells[i][j].m_block;				
+				Block& block = m_grid.m_cells[i][j].m_block;
+				m_blockShape.setSize(sf::Vector2f(GRID_SIZE - OUTLINE_THICKNESS, GRID_SIZE - OUTLINE_THICKNESS));
 				block.Draw(window, m_blockShape, 0, 0, false);
 			}
 		}
@@ -918,6 +917,7 @@ void Tetris::DropCurrentPiece()
 
 	// Check for clears
 
+	int numClears = 0;
 	for (int i = 0; i < m_rows; i++)
 	{
 		bool clear = true;
@@ -932,9 +932,12 @@ void Tetris::DropCurrentPiece()
 
 		if (clear)
 		{			
+			numClears++;
 			ClearRow(i);			
 		}
 	}
+		
+	m_lastClearCount = numClears;
 }
 
 void Tetris::ClearRow(int row)
