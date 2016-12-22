@@ -1,23 +1,23 @@
 #include "stdafx.h"
 
+#include "CombatComponent.h"
 #include "CombatSystem.h"
+#include "Tetris.h"
 
 void CombatSystem::Update(float dt)
 {
-	/*if (m_attackingBoard)
+	for (s32 i = 0; i < g_clientGame.m_games.size(); i++)
 	{
-		switch (numClears)
+		Tetris* current = g_clientGame.m_games[i]->m_game;
+		CombatComponent* combatCmp = current->GetComponent<CombatComponent>();		
+		if (combatCmp)
 		{
-		case 4:
-			m_attackingBoard->AddGarbage(4 + (m_lastClearCount == 4 ? 1 : 0));
-			break;
-		case 3:
-			m_attackingBoard->AddGarbage(2);
-			break;
-		case 2:
-			m_attackingBoard->AddGarbage(1);
-			break;
-		}
-	}*/
+			for (auto dmgIterator = combatCmp->m_damageQueue.begin(); dmgIterator != combatCmp->m_damageQueue.end(); )
+			{
+				combatCmp->m_owner->AddGarbage(dmgIterator->dmg);
+				dmgIterator = combatCmp->m_damageQueue.erase(dmgIterator);
+			}
 
+		}
+	}	
 }

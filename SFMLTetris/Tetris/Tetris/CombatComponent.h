@@ -2,6 +2,12 @@
 #include "Component.h"
 class Tetris;
 
+struct DamageEvent
+{
+	Tetris* instigator;
+	int dmg;
+};
+
 class CombatComponent :	public Component
 {
 public:
@@ -14,5 +20,7 @@ public:
 	int m_special;
 	int m_HP;
 	int m_MP;
+
+	std::vector<DamageEvent> m_damageQueue;
 };
 

@@ -15,6 +15,7 @@ public:
 
 	bool CanFindMove() { return m_timeSinceLastUpdate > AI_UPDATE_RATE_SECONDS; }
 	DesiredMoveSet GetBestMove() { return m_bestMoves[0]; }			
+	bool m_initialized;
 	float m_timeSinceLastUpdate;
 	std::vector<AIHeuristic*> m_heuristics;
 	std::vector<AIDebugHeuristic> m_debugHeuristics;

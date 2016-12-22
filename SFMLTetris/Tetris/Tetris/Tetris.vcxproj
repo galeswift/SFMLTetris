@@ -154,6 +154,7 @@
     <ClInclude Include="AIMoveSystem.h" />
     <ClInclude Include="CombatComponent.h" />
     <ClInclude Include="CombatSystem.h" />
+    <ClInclude Include="CombatUtil.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="ClientGame.h" />
@@ -174,6 +175,7 @@
     <ClCompile Include="AIMoveSystem.cpp" />
     <ClCompile Include="CombatComponent.cpp" />
     <ClCompile Include="CombatSystem.cpp" />
+    <ClCompile Include="CombatUtil.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ClientGame.cpp" />
     <ClCompile Include="Main.cpp" />

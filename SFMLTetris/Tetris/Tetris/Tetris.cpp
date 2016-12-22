@@ -6,6 +6,7 @@
 
 // Other includes
 #include <SFML/Graphics.hpp>
+#include "CombatUtil.h"
 #include "Tetris.h"
 
 void Block::Draw(sf::RenderWindow * window,sf::RectangleShape& blockShape, int colOffset, int rowOffset, bool ghost)
@@ -609,13 +610,13 @@ void Tetris::InitKeyBindings()
 		m_inputs.push_back(mapping);
 	}*/
 
-	/*{
+	{
 		InputMapping mapping;
 		mapping.key = sf::Keyboard::LAlt;
 		mapping.InputFunc = &Tetris::KeyGarbage;
 		m_inputs.push_back(mapping);
 	}
-*/
+
 
 	{
 		InputMapping mapping;
@@ -674,6 +675,7 @@ void Tetris::KeyExit()
 
 void Tetris::KeyGarbage()
 {
+	CombatUtil::Attack(this, 4);
 	AddGarbage(4);
 }
 

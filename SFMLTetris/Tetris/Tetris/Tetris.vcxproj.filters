@@ -21,6 +21,12 @@
     <Filter Include="Source Files\Systems">
       <UniqueIdentifier>{10a6c231-85f3-4782-83bd-d05f3444adf9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Utils">
+      <UniqueIdentifier>{332143f4-d676-4e98-a2a9-096ef5df5147}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{9299eac8-6fd7-4b08-9b6c-c18ebc8fc2e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -81,7 +87,10 @@
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
     <ClInclude Include="AIEvaluatorUtil.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="CombatUtil.h">
+      <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +141,9 @@
     </ClCompile>
     <ClCompile Include="AIEvaluatorUtil.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CombatUtil.cpp">
+      <Filter>Source Files\Utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
