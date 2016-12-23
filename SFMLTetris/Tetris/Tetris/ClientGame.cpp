@@ -2,6 +2,7 @@
 
 #include "AIControllerSystem.h"
 #include "AIEvaluatorSystem.h"
+#include "AISpawnComponent.h"
 #include "ClientGame.h"
 #include "System.h"
 #include "Tetris.h"
@@ -60,6 +61,20 @@ bool GameManager::IsRunning()
 		return m_games.at(0)->m_game->IsRunning();
 	}
 	return false;
+}
+
+AISpawnComponent* GameManager::GetSpawnComponent()
+{
+	AISpawnComponent* result = NULL;
+	for (s32 i = 0; i < m_components.size(); i++)
+	{
+		result = dynamic_cast<AISpawnComponent*>(m_components[i]);
+		if (result != NULL)
+		{
+			break;
+		}
+	}
+	return result;
 }
 
 GameInfo::~GameInfo()

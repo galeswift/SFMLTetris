@@ -152,6 +152,8 @@
     <ClInclude Include="AIEvaluatorUtil.h" />
     <ClInclude Include="AIHeuristics.h" />
     <ClInclude Include="AIMoveSystem.h" />
+    <ClInclude Include="AISpawnComponent.h" />
+    <ClInclude Include="AISpawnSystem.h" />
     <ClInclude Include="CombatComponent.h" />
     <ClInclude Include="CombatSystem.h" />
     <ClInclude Include="CombatUtil.h" />
@@ -173,6 +175,8 @@
     <ClCompile Include="AIEvaluatorUtil.cpp" />
     <ClCompile Include="AIHeuristics.cpp" />
     <ClCompile Include="AIMoveSystem.cpp" />
+    <ClCompile Include="AISpawnComponent.cpp" />
+    <ClCompile Include="AISpawnSystem.cpp" />
     <ClCompile Include="CombatComponent.cpp" />
     <ClCompile Include="CombatSystem.cpp" />
     <ClCompile Include="CombatUtil.cpp" />

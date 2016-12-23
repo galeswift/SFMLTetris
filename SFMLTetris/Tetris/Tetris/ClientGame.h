@@ -1,13 +1,14 @@
 #pragma once
 #include <vector>
 #include "Component.h"
-#include "Constants.h"
 
-class Tetris;
-class AIEvaluatorSystem;
 class AIControllerSystem;
+class AIEvaluatorSystem;
+class AISpawnComponent;
+class Component;
 class PlayerComponent;
 class System;
+class Tetris;
 
 struct GameInfo
 {
@@ -34,9 +35,12 @@ public:
 	void Update(float dt);
 	void Draw(sf::RenderWindow* window, float dt);
 	bool IsRunning();
+	
+	AISpawnComponent* GetSpawnComponent();
 
+	std::vector<Component*> m_components;
 	std::vector<System*> m_systems;
-	std::vector<GameInfo*> m_games;	
+	std::vector<GameInfo*> m_games;
 };
 
 template <typename T>

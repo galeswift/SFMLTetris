@@ -5,6 +5,8 @@
 #include "AIEvaluatorComponent.h"
 #include "AIEvaluatorSystem.h"
 #include "AIMoveSystem.h"
+#include "AISpawnComponent.h"
+#include "AISpawnSystem.h"
 #include "ClientGame.h"
 #include "CombatComponent.h"
 #include "CombatSystem.h"
@@ -51,42 +53,37 @@ int main(int argc, char** argv)
 
 	CombatComponent* playerCombat = new CombatComponent(localGame);
 	localGame->m_components.push_back(playerCombat);
-
 	playerCombat->m_HP = 10;
 	playerCombat->m_MP = 10;
 	playerCombat->m_attack = 2;
-	playerCombat->m_defense = 1;
+	playerCombat->m_defense = 1;		
 	
 	GameInfo* playerGame = g_clientGame.AddGame<GameInfo>(localGame, sf::FloatRect(0, 0, .5, .5));
-	
+
+	// Components
+	g_clientGame.m_components.push_back(new AISpawnComponent(NULL));
+
+	// systems
 	AIEvaluatorSystem* aiPlayer = new AIEvaluatorSystem();
 	AIControllerSystem* aiController = new AIControllerSystem();	
 	g_clientGame.m_systems.push_back(aiPlayer);
 	g_clientGame.m_systems.push_back(aiController);
 	g_clientGame.m_systems.push_back(new AIMoveSystem());
-	g_clientGame.m_systems.push_back(new CombatSystem());	
-	
+	g_clientGame.m_systems.push_back(new AISpawnSystem());	
+	g_clientGame.m_systems.push_back(new CombatSystem());
+		
 	int rows = 1;
 	int cols = 1;
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < cols; j++)
 		{
-			Tetris* otherGame = new Tetris();			
-			float baseScale = 0.8f;
-			//otherGame->Init(false, rand()%10 + 10, rand()% 5 + 5);
-			otherGame->Init(false, NUM_ROWS, NUM_COLS);			
-			float scaleY = baseScale / rows;
-			float scaleX = baseScale / cols;
-			float scale = scaleX >= scaleY ? scaleX : scaleY;
-			GameInfo* aiGame = g_clientGame.AddGame<GameInfo>(otherGame, sf::FloatRect(.3f + baseScale /cols * j, (0.05f + baseScale / rows) * i, scale, scale));			
-
-			AIControllerComponent* aiComponent = new AIControllerComponent(otherGame);
-			aiComponent->SetUpdateFrequency(.15f);
-
-			otherGame->m_components.push_back(aiComponent);
-			otherGame->m_components.push_back(new AIEvaluatorComponent(otherGame));
-			otherGame->m_components.push_back(new CombatComponent(otherGame));
+			AISpawnComponent* spawnComp = g_clientGame.GetSpawnComponent();
+			AISpawnComponent::SpawnInfo newAI;
+			newAI.rowSize = NUM_ROWS - 10;
+			newAI.columnSize = NUM_COLS - 3;
+			newAI.updateFrequency = .1f;
+			spawnComp->AddAI(newAI);			
 		}
 	}
 

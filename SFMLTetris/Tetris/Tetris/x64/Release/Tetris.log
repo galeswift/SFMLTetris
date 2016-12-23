@@ -1,25 +1,36 @@
-﻿Build started 9/18/2016 9:19:42 PM.
+﻿Build started 12/23/2016 9:45:54 AM.
      1>Project "D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\Tetris\Tetris.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"../../SFML-2.3.2/include" /I../../Raknet/Source /Zi /nologo /W3 /WX- /O2 /Oi /GL /D SFML_STATIC /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"x64\Release\Tetris.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc140.pdb" /Gd /TP /errorReport:prompt AIEvaluator.cpp Game.cpp Main.cpp
-         AIEvaluator.cpp
-     1>AIEvaluator.cpp(61): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-     1>AIEvaluator.cpp(126): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-     1>AIEvaluator.cpp(139): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-         Game.cpp
-     1>Game.cpp(73): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"../../SFML-2.3.2/include" /I../../Raknet/Source /Zi /nologo /W3 /WX- /O2 /Oi /GL /D SFML_STATIC /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"x64\Release\Tetris.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc140.pdb" /Gd /TP /errorReport:prompt AISpawnSystem.cpp Main.cpp
+         AISpawnSystem.cpp
+     1>d:\work\vs2015\sfmltetris\sfmltetris\tetris\tetris\ClientGame.h(14): warning C4099: 'GameInfo': type name first seen using 'class' now seen using 'struct'
+         d:\work\vs2015\sfmltetris\sfmltetris\tetris\tetris\ClientGame.h(13): note: see declaration of 'GameInfo'
          Main.cpp
+     1>d:\work\vs2015\sfmltetris\sfmltetris\tetris\tetris\AISpawnComponent.h(5): warning C4099: 'GameInfo': type name first seen using 'struct' now seen using 'class'
+         d:\work\vs2015\sfmltetris\sfmltetris\tetris\tetris\ClientGame.h(14): note: see declaration of 'GameInfo'
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\x64\Release\Tetris.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"../../SFML-2.3.2/lib" /LIBPATH:../../Raknet/Lib/LibStatic/Lib ws2_32.lib LibStatic_vc9_LibStatic_Release_x64.lib "sfml-audio-s.lib" "sfml-graphics-s.lib" "sfml-main.lib" "sfml-system-s.lib" "sfml-window-s.lib" opengl32.lib jpeg.lib freetype.lib winmm.lib gdi32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\x64\Release\Tetris.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\x64\Release\Tetris.lib" /MACHINE:X64 x64\Release\AIController.obj
-         x64\Release\AIEvaluator.obj
-         x64\Release\Game.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\x64\Release\Tetris.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"../../SFML-2.3.2/lib" /LIBPATH:../../Raknet/Lib/LibStatic/Lib ws2_32.lib LibStatic_vc9_LibStatic_Release_x64.lib "sfml-audio-s.lib" "sfml-graphics-s.lib" "sfml-main.lib" "sfml-system-s.lib" "sfml-window-s.lib" opengl32.lib jpeg.lib freetype.lib winmm.lib gdi32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\x64\Release\Tetris.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\x64\Release\Tetris.lib" /MACHINE:X64 x64\Release\AIControllerComponent.obj
+         x64\Release\AIControllerSystem.obj
+         x64\Release\AIEvaluatorSystem.obj
+         x64\Release\AIEvaluatorComponent.obj
+         x64\Release\AIEvaluatorUtil.obj
+         x64\Release\AIHeuristics.obj
+         x64\Release\AIMoveSystem.obj
+         x64\Release\AISpawnComponent.obj
+         x64\Release\AISpawnSystem.obj
+         x64\Release\CombatComponent.obj
+         x64\Release\CombatSystem.obj
+         x64\Release\CombatUtil.obj
+         x64\Release\Component.obj
+         x64\Release\ClientGame.obj
          x64\Release\Main.obj
          x64\Release\Networking.obj
+         x64\Release\PlayerComponent.obj
          x64\Release\stdafx.obj
          x64\Release\Tetris.obj
          Generating code
-         4 of 716 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
-           1 functions were new in current compilation
+         2 of 991 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+           0 functions were new in current compilation
            0 functions had inline decision re-evaluated but remain unchanged
          Finished generating code
          Tetris.vcxproj -> D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\x64\Release\Tetris.exe
@@ -27,4 +38,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:03.20
+Time Elapsed 00:00:01.47

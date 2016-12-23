@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Constants.h"
-
 class Tetris;
 
 class CombatUtil
