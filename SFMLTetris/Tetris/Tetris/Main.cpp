@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	playerCombat->m_attack = 2;
 	playerCombat->m_defense = 1;		
 	
-	GameInfo* playerGame = g_clientGame.AddGame<GameInfo>(localGame, sf::FloatRect(0, 0, .5, .5));
+	GameInfo* playerGame = g_clientGame.AddGame<GameInfo>(localGame, sf::FloatRect(0, 0, .5, .5), g_clientGame.ReserveHandle());
 
 	// Components
 	g_clientGame.m_components.push_back(new AISpawnComponent(NULL));
@@ -74,6 +74,7 @@ int main(int argc, char** argv)
 		
 	int rows = 1;
 	int cols = 1;
+	GameHandle aiHandle = 0;
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < cols; j++)
@@ -83,7 +84,7 @@ int main(int argc, char** argv)
 			newAI.rowSize = NUM_ROWS - 10;
 			newAI.columnSize = NUM_COLS - 3;
 			newAI.updateFrequency = .1f;
-			spawnComp->AddAI(newAI);			
+			aiHandle = spawnComp->AddAI(newAI);			
 		}
 	}
 
@@ -111,6 +112,10 @@ int main(int argc, char** argv)
 				else if (event.key.code == sf::Keyboard::P)
 				{
 					paused = !paused;
+				}
+				else if (event.key.code == sf::Keyboard::D)
+				{
+					g_clientGame.RemoveGame(aiHandle);
 				}
 			}
 			if (event.type == sf::Event::Closed)

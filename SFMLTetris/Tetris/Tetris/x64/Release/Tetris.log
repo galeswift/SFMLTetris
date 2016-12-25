@@ -1,10 +1,7 @@
-﻿Build started 12/23/2016 9:45:54 AM.
+﻿Build started 12/25/2016 9:53:37 AM.
      1>Project "D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\Tetris\Tetris.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"../../SFML-2.3.2/include" /I../../Raknet/Source /Zi /nologo /W3 /WX- /O2 /Oi /GL /D SFML_STATIC /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"x64\Release\Tetris.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc140.pdb" /Gd /TP /errorReport:prompt AISpawnSystem.cpp Main.cpp
-         AISpawnSystem.cpp
-     1>d:\work\vs2015\sfmltetris\sfmltetris\tetris\tetris\ClientGame.h(14): warning C4099: 'GameInfo': type name first seen using 'class' now seen using 'struct'
-         d:\work\vs2015\sfmltetris\sfmltetris\tetris\tetris\ClientGame.h(13): note: see declaration of 'GameInfo'
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"../../SFML-2.3.2/include" /I../../Raknet/Source /Zi /nologo /W3 /WX- /O2 /Oi /GL /D SFML_STATIC /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"x64\Release\Tetris.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc140.pdb" /Gd /TP /errorReport:prompt Main.cpp
          Main.cpp
      1>d:\work\vs2015\sfmltetris\sfmltetris\tetris\tetris\AISpawnComponent.h(5): warning C4099: 'GameInfo': type name first seen using 'struct' now seen using 'class'
          d:\work\vs2015\sfmltetris\sfmltetris\tetris\tetris\ClientGame.h(14): note: see declaration of 'GameInfo'
@@ -29,13 +26,13 @@
          x64\Release\stdafx.obj
          x64\Release\Tetris.obj
          Generating code
-         2 of 991 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+         16 of 1010 functions ( 1.6%) were compiled, the rest were copied from previous compilation.
            0 functions were new in current compilation
-           0 functions had inline decision re-evaluated but remain unchanged
+           7 functions had inline decision re-evaluated but remain unchanged
          Finished generating code
          Tetris.vcxproj -> D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\x64\Release\Tetris.exe
      1>Done Building Project "D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\Tetris\Tetris.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.47
+Time Elapsed 00:00:01.42

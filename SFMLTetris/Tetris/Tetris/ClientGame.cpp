@@ -11,19 +11,20 @@ GameManager g_clientGame = GameManager();
 
 GameManager::~GameManager()
 {
-	for (int i = 0; i < m_games.size(); i++)
-	{		
-		delete m_games[i];
-		m_games.erase(m_games.begin() + i);
-		i--;
-	}	
+	// SFML Crashes in cleaning up the font here..
+	//for (int i = 0; i < m_games.size(); i++)
+	//{		
+	//	delete m_games[i];
+	//	m_games.erase(m_games.begin() + i);
+	//	i--;
+	//}	
 
-	for (int i = 0; i < m_systems.size(); i++)
-	{
-		delete m_systems[i];
-		m_systems.erase(m_systems.begin() + i);
-		i--;
-	}
+	//for (int i = 0; i < m_systems.size(); i++)
+	//{
+	//	delete m_systems[i];
+	//	m_systems.erase(m_systems.begin() + i);
+	//	i--;
+	//}
 }
 
 void GameManager::Update(float dt)
@@ -77,9 +78,23 @@ AISpawnComponent* GameManager::GetSpawnComponent()
 	return result;
 }
 
+void GameManager::RemoveGame(GameHandle handle)
+{
+	for (s32 i = 0; i < m_games.size(); i++)
+	{
+		if (m_games[i]->m_handle == handle)
+		{
+			delete m_games[i];
+			m_games.erase(m_games.begin() + i);
+			break;
+		}
+	}
+}
+
 GameInfo::~GameInfo()
 {
-	
+	delete m_game;
+	m_game = NULL;
 }
 
 void GameInfo::Update(float dt)
@@ -92,4 +107,3 @@ void GameInfo::Draw(sf::RenderWindow * window, float dt)
 	window->setView(m_view);
 	m_game->Draw(window);
 }
-

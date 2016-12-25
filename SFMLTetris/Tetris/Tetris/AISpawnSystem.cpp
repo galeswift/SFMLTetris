@@ -22,14 +22,14 @@ void AISpawnSystem::Update(float dt)
 		AISpawnComponent::SpawnInfo& currentInfo = g_clientGame.GetSpawnComponent()->m_spawnQueue.at(i);
 		Tetris* otherGame = new Tetris();				
 		otherGame->Init(false, currentInfo.rowSize, currentInfo.columnSize);
-		GameInfo* aiGame = g_clientGame.AddGame<GameInfo>(otherGame, sf::FloatRect(.3f, .1f, .8f,.8f));
+		GameInfo* aiGame = g_clientGame.AddGame<GameInfo>(otherGame, sf::FloatRect(.3f, .1f, .8f,.8f), currentInfo.handle);
 
 		AIControllerComponent* aiComponent = new AIControllerComponent(otherGame);
 		aiComponent->SetUpdateFrequency(currentInfo.updateFrequency);
 
 		otherGame->m_components.push_back(aiComponent);
 		otherGame->m_components.push_back(new AIEvaluatorComponent(otherGame));
-		otherGame->m_components.push_back(new CombatComponent(otherGame));
+		otherGame->m_components.push_back(new CombatComponent(otherGame));		
 	}
 	
 	g_clientGame.GetSpawnComponent()->m_spawnQueue.clear();

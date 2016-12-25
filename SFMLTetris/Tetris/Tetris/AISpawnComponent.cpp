@@ -1,11 +1,20 @@
 #include "stdafx.h"
 #include "AISpawnComponent.h"
+#include "ClientGame.h"
+
+AISpawnComponent::AISpawnComponent(Tetris * tetris)
+	: Component(tetris)	
+{
+}
 
 AISpawnComponent::~AISpawnComponent()
 {
 }
 
-void AISpawnComponent::AddAI(const SpawnInfo & info)
+GameHandle AISpawnComponent::AddAI(const SpawnInfo& info)
 {
+	GameHandle newHandle = g_clientGame.ReserveHandle();
 	m_spawnQueue.push_back(info);
+	m_spawnQueue.back().handle = newHandle;
+	return newHandle;
 }

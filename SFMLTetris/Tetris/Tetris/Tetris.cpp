@@ -279,10 +279,10 @@ Tetris::~Tetris()
 	m_heldPiece = NULL;
 
 	for (int i = 0; i < NUM_PREVIEW_PIECES; i++)
-	{
+	{		
 		delete m_previewPieces[i];
 		m_previewPieces[i] = NULL;
-	}
+	}	
 }
 
 void Tetris::Clone(const Tetris * other)
