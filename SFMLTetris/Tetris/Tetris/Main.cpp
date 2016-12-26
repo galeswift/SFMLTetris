@@ -72,21 +72,13 @@ int main(int argc, char** argv)
 	g_clientGame.m_systems.push_back(new AISpawnSystem());	
 	g_clientGame.m_systems.push_back(new CombatSystem());
 		
-	int rows = 1;
-	int cols = 1;
-	GameHandle aiHandle = 0;
-	for (int i = 0; i < rows; i++)
+	struct AIInfo
 	{
-		for (int j = 0; j < cols; j++)
-		{
-			AISpawnComponent* spawnComp = g_clientGame.GetSpawnComponent();
-			AISpawnComponent::SpawnInfo newAI;
-			newAI.rowSize = NUM_ROWS - 10;
-			newAI.columnSize = NUM_COLS - 3;
-			newAI.updateFrequency = .1f;
-			aiHandle = spawnComp->AddAI(newAI);			
-		}
-	}
+		GameHandle handle;
+		sf::Vector2f pos;
+	};
+	std::vector<AIInfo> aiInfo;	
+	sf::Vector2f aiSpawnPos(350,0);
 
 	bool paused = false;
 	sf::Clock clock;
@@ -115,7 +107,29 @@ int main(int argc, char** argv)
 				}
 				else if (event.key.code == sf::Keyboard::D)
 				{
-					g_clientGame.RemoveGame(aiHandle);
+					if (aiInfo.size() > 0)
+					{						
+						g_clientGame.RemoveGame(aiInfo.back().handle);
+						aiSpawnPos = aiInfo.back().pos;
+						aiInfo.pop_back();
+					}
+				}
+				else if (event.key.code == sf::Keyboard::S)
+				{									
+					AISpawnComponent* spawnComp = g_clientGame.GetSpawnComponent();
+					AISpawnComponent::SpawnInfo newAI;
+					newAI.rowSize = NUM_ROWS - 10;
+					newAI.columnSize = NUM_COLS - 3;
+					newAI.spawnPos = aiSpawnPos;
+					newAI.spawnScale = sf::Vector2f(0.5, 0.5);
+					newAI.updateFrequency = .1f;
+					aiInfo.push_back(AIInfo{spawnComp->AddAI(newAI), aiSpawnPos});
+					aiSpawnPos.x += 350;
+					if (aiSpawnPos.x > WINDOW_WIDTH - 250)
+					{
+						aiSpawnPos.x = 350;
+						aiSpawnPos.y += 300;
+					}
 				}
 			}
 			if (event.type == sf::Event::Closed)
