@@ -15,6 +15,7 @@ struct GameInfo
 	GameInfo()
 		: m_game(nullptr)
 		, m_handle(0)
+		, m_pos(0,0)
 	{
 
 	}
@@ -26,6 +27,7 @@ struct GameInfo
 	u32 m_handle;
 	Tetris* m_game;	
 	sf::View m_view;
+	sf::Vector2f m_pos;
 };
 
 class GameManager
@@ -52,10 +54,13 @@ template <typename T>
 T* GameManager::AddGame(Tetris* game, const sf::FloatRect& rect, GameHandle handle)
 {
 	T* newInfo = new T();
+	sf::FloatRect viewportRect = rect;
 	newInfo->m_game = game;
-	newInfo->m_view.reset(sf::FloatRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
-	newInfo->m_view.setViewport(rect);
+	newInfo->m_view.reset(sf::FloatRect(0,0, WINDOW_WIDTH, WINDOW_HEIGHT));
+	viewportRect = sf::FloatRect(rect.left / WINDOW_WIDTH, rect.top / WINDOW_HEIGHT, rect.width, rect.height);
+	newInfo->m_view.setViewport(viewportRect);
 	newInfo->m_handle = handle;
+	newInfo->m_pos = sf::Vector2f(rect.left, rect.top);
 	m_games.push_back(newInfo);
 	
 	return newInfo;

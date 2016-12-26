@@ -18,7 +18,6 @@ public:
 	int m_attack;
 	int m_defense;
 	int m_special;
-	int m_HP;
 	int m_MP;
 
 	std::vector<DamageEvent> m_damageQueue;

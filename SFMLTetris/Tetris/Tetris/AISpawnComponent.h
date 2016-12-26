@@ -30,9 +30,11 @@ public:
 
 	AISpawnComponent(Tetris* tetris);
 	~AISpawnComponent();
-		
-	GameHandle AddAI(const SpawnInfo& info);
+	void RemoveAI(GameHandle handle);
+	GameHandle AddAI(s32 rows, s32 cols);
 
+	sf::Vector2f m_aiSpawnPos;
+	std::vector<SpawnInfo> m_currentSpawns;
 	std::vector<SpawnInfo> m_spawnQueue;
 };
 

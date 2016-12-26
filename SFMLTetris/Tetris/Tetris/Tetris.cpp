@@ -675,7 +675,7 @@ void Tetris::KeyExit()
 
 void Tetris::KeyGarbage()
 {
-	CombatUtil::Attack(this, 4);	
+	CombatUtil::Attack(this, 4);
 }
 
 void Tetris::KeyClearRow()
