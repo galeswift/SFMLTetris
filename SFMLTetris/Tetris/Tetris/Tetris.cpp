@@ -13,7 +13,7 @@ void Block::Draw(sf::RenderWindow * window,sf::RectangleShape& blockShape, int c
 {
 	sf::Vector2f fieldOrigin(FIELD_ORIGIN_X, FIELD_ORIGIN_Y);	
 	sf::Vector2f position = fieldOrigin;
-	position += sf::Vector2f((colOffset + colIdx) * GRID_SIZE, (rowOffset + rowIdx)*GRID_SIZE);	
+	position += sf::Vector2f((float)(colOffset + colIdx) * GRID_SIZE, (float)(rowOffset + rowIdx)*GRID_SIZE);	
 	blockShape.setFillColor(m_fillColor);
 	blockShape.setOutlineColor(m_outlineColor);
 	blockShape.setPosition(position);
@@ -285,7 +285,7 @@ Tetris::~Tetris()
 	}	
 }
 
-void Tetris::Clone(const Tetris * other)
+void Tetris::Clone(const Tetris* other)
 {
 	m_isClone = true;
 	
@@ -546,6 +546,31 @@ void Tetris::Reset()
 	m_repeatTimer = INPUT_REPEAT_INTERVAL;	
 	m_currentLevel = 1;
 	m_clearedRows = 0;
+
+	m_fieldWidth = (GRID_SIZE * m_cols);
+	m_fieldHeight = (GRID_SIZE * m_rows);
+	m_fieldOrigin = sf::Vector2f(FIELD_ORIGIN_X, FIELD_ORIGIN_Y);
+
+	m_fieldShape.setSize(sf::Vector2f(m_fieldWidth, m_fieldHeight));
+	m_fieldShape.setPosition(m_fieldOrigin);
+	m_fieldShape.setFillColor(sf::Color::Black);
+	m_fieldShape.setOutlineColor(sf::Color(200, 200, 200, 200));
+
+	m_previewContainerShape.setSize(sf::Vector2f(GRID_SIZE * 5, GRID_SIZE * 5 * NUM_PREVIEW_PIECES));
+	m_previewContainerShape.setOutlineThickness(10.0f);
+	m_previewContainerShape.setPosition(m_fieldOrigin + sf::Vector2f(m_fieldWidth + GRID_SIZE * 3, m_previewContainerShape.getOutlineThickness()));
+	m_previewContainerShape.setFillColor(sf::Color(128, 128, 128, 255));
+	m_previewContainerShape.setOutlineColor(sf::Color(70, 70, 70, 255));
+
+	m_swapContainerShape.setSize(sf::Vector2f(GRID_SIZE * 5, GRID_SIZE * 5));
+	m_swapContainerShape.setOutlineThickness(10.0f);
+	m_swapContainerShape.setPosition(m_fieldOrigin + sf::Vector2f(-GRID_SIZE * 7, m_swapContainerShape.getOutlineThickness()));
+	m_swapContainerShape.setFillColor(sf::Color(128, 128, 128, 255));
+	m_swapContainerShape.setOutlineColor(sf::Color(70, 70, 70, 255));
+
+	m_blockShape.setSize(sf::Vector2f(GRID_SIZE, GRID_SIZE));
+	m_blockShape.setOutlineThickness(1.0f);	
+	m_blockShape.setOrigin(sf::Vector2f(0.5f, 0.5f));
 }
 
 void Tetris::CreateNewPiece(bool deleteCurrent)
@@ -808,45 +833,19 @@ void Tetris::Update(float dt)
 }
 
 void Tetris::Draw(sf::RenderWindow* window)
-{	
-	int	fieldWidth = (GRID_SIZE * m_cols);
-	int	fieldHeight = (GRID_SIZE * m_rows);
-
-	sf::Vector2f fieldOrigin(FIELD_ORIGIN_X,FIELD_ORIGIN_Y);
-	sf::RectangleShape field;
-	field.setSize(sf::Vector2f(fieldWidth, fieldHeight));
-	field.setPosition(fieldOrigin);
-	field.setFillColor(sf::Color::Black);
-	window->draw(field);
-
-	// Preview
-	sf::RectangleShape previewContainer;
-	previewContainer.setSize(sf::Vector2f(GRID_SIZE * 5, GRID_SIZE * 5 * NUM_PREVIEW_PIECES));
-	previewContainer.setOutlineThickness(10.0f);	
-	previewContainer.setPosition(fieldOrigin + sf::Vector2f(fieldWidth + GRID_SIZE * 3, previewContainer.getOutlineThickness()));
-	previewContainer.setFillColor(sf::Color(128, 128, 128, 255));
-	previewContainer.setOutlineColor(sf::Color(70, 70, 70, 255));
-	window->draw(previewContainer);
-
-	sf::RectangleShape swapContainer;
-	swapContainer.setSize(sf::Vector2f(GRID_SIZE * 5, GRID_SIZE * 5));
-	swapContainer.setOutlineThickness(10.0f);
-	swapContainer.setPosition(fieldOrigin + sf::Vector2f( - GRID_SIZE * 7, swapContainer.getOutlineThickness()));
-	swapContainer.setFillColor(sf::Color(128, 128, 128, 255));
-	swapContainer.setOutlineColor(sf::Color(70, 70, 70, 255));
-	window->draw(swapContainer);
+{		
+	window->draw(m_fieldShape);	
+	window->draw(m_previewContainerShape);
+	window->draw(m_swapContainerShape);
 
 	for (int i=0 ; i < m_cols ; i++)
 	{
 		for (int j=0 ; j < m_rows ; j++)
-		{									
-			m_blockShape.setSize(sf::Vector2f(GRID_SIZE, GRID_SIZE));
-			m_blockShape.setOutlineThickness(1.0f);
+		{							
 			m_blockShape.setOutlineColor(sf::Color(255, 255, 255, 50));
 			m_blockShape.setFillColor(sf::Color(0, 0, 0));
-			m_blockShape.setOrigin(sf::Vector2f(0.5f, 0.5f));
-
-			m_blockShape.setPosition(fieldOrigin + sf::Vector2f(i * GRID_SIZE, j*GRID_SIZE));
+			m_blockShape.setSize(sf::Vector2f(GRID_SIZE, GRID_SIZE));
+			m_blockShape.setPosition(m_fieldOrigin + sf::Vector2f(i * GRID_SIZE, j*GRID_SIZE));
 			window->draw(m_blockShape);
 			
 			if (m_grid.m_cells[i][j].m_isFilled)
@@ -888,10 +887,10 @@ void Tetris::Draw(sf::RenderWindow* window)
 	}
 	// Draw 'HUD'
 	sf::Text text;
-	text.setPosition(fieldOrigin + sf::Vector2f(260, 450));
+	text.setPosition(m_fieldOrigin + sf::Vector2f(260, 450));
 	text.setFont(m_mainFont);
 	text.setCharacterSize(18);
-	text.setColor(sf::Color::White);
+	text.setFillColor(sf::Color::White);
 	
 	// Draw current level
 	{

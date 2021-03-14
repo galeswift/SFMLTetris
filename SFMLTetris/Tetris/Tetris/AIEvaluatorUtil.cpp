@@ -33,7 +33,7 @@ void AIEvaluatorUtil::FindBestMove(AIEvaluatorComponent* comp)
 	}
 }
 
-DesiredMoveSet AIEvaluatorUtil::__FindBestMove(Tetris * tetrisBoard, AIEvaluatorComponent * ownerComp, int numLookaheads, bool holdPiece)
+DesiredMoveSet AIEvaluatorUtil::__FindBestMove(Tetris* tetrisBoard, AIEvaluatorComponent * ownerComp, int numLookaheads, bool holdPiece)
 {
 	DesiredMoveSet result;
 

@@ -28,7 +28,7 @@ void AISpawnSystem::Update(float dt)
 		aiComponent->SetUpdateFrequency(currentInfo.updateFrequency);
 
 		otherGame->m_components.push_back(aiComponent);
-		otherGame->m_components.push_back(new AIEvaluatorComponent(otherGame));
+		otherGame->m_components.push_back(new AIEvaluatorComponent(otherGame, currentInfo.aiHeursticRange));
 		otherGame->m_components.push_back(new CombatComponent(otherGame));		
 
 		g_clientGame.GetSpawnComponent()->m_currentSpawns.push_back(currentInfo);

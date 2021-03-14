@@ -36,6 +36,13 @@ public:
 	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
 };
 
+class AIHeuristic_DeepestHole : public AIHeuristic
+{
+public:
+	using AIHeuristic::AIHeuristic;
+	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+};
+
 class AIHeuristic_GameLoss : public AIHeuristic
 {
 public:

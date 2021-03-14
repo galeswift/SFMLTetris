@@ -1,2 +1,2 @@
-#TargetFrameworkVersion=v4.0:PlatformToolSet=v140:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit
-Debug|x64|D:\Work\VS2015\SFMLTetris\SFMLTetris\Tetris\|
+PlatformToolSet=v142:VCToolArchitecture=Native32Bit:VCToolsVersion=14.28.29910:TargetPlatformVersion=10.0.19041.0:
+Debug|x64|C:\Users\kmiro\Documents\Visual Studio 2019\Projects\SFMLTetris\Tetris\|

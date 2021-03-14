@@ -141,6 +141,13 @@ public:
 	Piece* m_heldPiece;
 	Piece* m_previewPieces[NUM_PREVIEW_PIECES];
 	sf::RectangleShape m_blockShape;	
+	sf::RectangleShape m_fieldShape;
+	sf::RectangleShape m_previewContainerShape;
+	sf::RectangleShape m_swapContainerShape;
+	
+	sf::Vector2f m_fieldOrigin;
+	int	m_fieldWidth;
+	int	m_fieldHeight;	
 	float m_repeatTimer;
 	float m_repeatStartTimer;
 	float m_levelDropSpeed;

@@ -17,9 +17,9 @@ void AIControllerSystem::Update(float dt)
 		{
 			comp->m_timeUntilUpdate -= dt;
 
-			if (comp->m_timeUntilUpdate <= 0.0f)
+			while (comp->m_timeUntilUpdate <= 0.0f)
 			{
-				comp->m_timeUntilUpdate = comp->m_updateFrequency;
+				comp->m_timeUntilUpdate += comp->m_updateFrequency;
 				if (!comp->m_currentMove.used && comp->m_owner->m_currentPiece)
 				{
 					if (comp->m_currentMove.swapPiece)

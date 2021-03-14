@@ -109,7 +109,10 @@ int main(int argc, char** argv)
 				else if (event.key.code == sf::Keyboard::S)
 				{									
 					AISpawnComponent* spawnComp = g_clientGame.GetSpawnComponent();
-					aiInfo.push_back(spawnComp->AddAI(NUM_ROWS - 10, NUM_COLS - 3));
+					float flAIRandomness = 0.0f;
+					int nRandRowRange = rand() % 14;
+					int nRandColRange = rand() % 6;
+					aiInfo.push_back(spawnComp->AddAI(NUM_ROWS - nRandRowRange, NUM_COLS - nRandColRange, 0.1 /*0.25f * rand()/ (float)RAND_MAX + 0.05)*/, sf::Vector2f(1.0f - flAIRandomness, 1.0f + flAIRandomness)));
 				}
 			}
 			if (event.type == sf::Event::Closed)
