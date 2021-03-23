@@ -31,7 +31,7 @@ public:
 
 	int rowIdx;
 	int colIdx;		
-	void Draw(sf::RenderWindow* window, sf::RectangleShape& blockShape, int colOffset, int rowOffset, bool ghost);
+	void Draw(sf::RenderWindow* window, const sf::Vector2f& vecOrigin, sf::RectangleShape& blockShape, int colOffset, int rowOffset, bool ghost);
 };
 
 class Piece
@@ -112,6 +112,7 @@ public:
 	void InitResources();
 	void InitKeyBindings();
 	void Reset();
+	void OnBoardFilled();
 	void CreateNewPiece(bool deleteCurrent);
 	void Update(float dt);
 	void Draw(sf::RenderWindow* window);
@@ -121,6 +122,7 @@ public:
 	void DropRow(int row);	
 	void AddGarbage(int numRows);	
 	bool IsRunning();
+	bool IsBoardPlayable();
 	float GetDropSpeed();
 	// Input mappings
 	void KeyExit();
@@ -132,6 +134,10 @@ public:
 	void KeyMoveDown();
 	void KeyDrop();
 	void KeySwap();
+
+	int GetTotalGameHeight();
+	int GetTotalGameWidth();
+	const sf::RectangleShape* GetFieldShape();
 
 	template<typename T>
 	T* GetComponent();
@@ -148,12 +154,15 @@ public:
 	sf::Vector2f m_fieldOrigin;
 	int	m_fieldWidth;
 	int	m_fieldHeight;	
+	int m_totalGameWidth;
+	int m_totalGameHeight;
 	float m_repeatTimer;
 	float m_repeatStartTimer;
 	float m_levelDropSpeed;
 	bool m_canSwapPiece;
 	bool m_isRunning;
-	bool m_isClone;
+	bool m_boardIsPlayable;
+	bool m_isClone;	
 	int m_clearedRows;
 	int m_currentLevel;
 	int m_pieceID;

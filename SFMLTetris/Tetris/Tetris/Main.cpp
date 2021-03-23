@@ -13,6 +13,8 @@
 #include "ClientGame.h"
 #include "Networking.h"
 #include "PlayerComponent.h"
+#include "SoundComponent.h"
+#include "SoundSystem.h"
 #include "Tetris.h"
 
 TetrisNetworkBase* g_networkPtr;
@@ -43,13 +45,16 @@ int main(int argc, char** argv)
 		}
 	}
 
-	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML TETRIS");
+	sf::ContextSettings windowSettings;
+	windowSettings.antialiasingLevel = 4;
+	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML TETRIS", sf::Style::Default, windowSettings);
 	
 	sf::View playerView;
 
 	Tetris* localGame = new Tetris();
 	localGame->Init(true, NUM_ROWS, NUM_COLS);
 	localGame->m_components.push_back(new PlayerComponent(localGame));
+	localGame->m_components.push_back(new SoundComponent(localGame));
 
 	CombatComponent* playerCombat = new CombatComponent(localGame);
 	localGame->m_components.push_back(playerCombat);	
@@ -57,10 +62,10 @@ int main(int argc, char** argv)
 	playerCombat->m_attack = 2;
 	playerCombat->m_defense = 1;		
 	
-	GameInfo* playerGame = g_clientGame.AddGame<GameInfo>(localGame, sf::FloatRect(0, 0, .5, .5), g_clientGame.ReserveHandle());
+	g_clientGame.AddGame<GameInfo>(localGame, sf::FloatRect(0, 0, PLAYER_SCALE, PLAYER_SCALE), g_clientGame.ReserveHandle());
 
 	// Components
-	g_clientGame.m_components.push_back(new AISpawnComponent(NULL));
+	g_clientGame.m_components.push_back(new AISpawnComponent(localGame));
 
 	// systems
 	AIEvaluatorSystem* aiPlayer = new AIEvaluatorSystem();
@@ -70,6 +75,7 @@ int main(int argc, char** argv)
 	g_clientGame.m_systems.push_back(new AIMoveSystem());
 	g_clientGame.m_systems.push_back(new AISpawnSystem());	
 	g_clientGame.m_systems.push_back(new CombatSystem());
+	g_clientGame.m_systems.push_back(new SoundSystem());
 		
 	std::vector<GameHandle> aiInfo;
 	bool paused = false;

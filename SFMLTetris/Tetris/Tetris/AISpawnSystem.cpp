@@ -4,6 +4,7 @@
 #include "AISpawnComponent.h"
 #include "AISpawnSystem.h"
 #include "CombatComponent.h"
+#include "SoundComponent.h"
 #include "Tetris.h"
 
 AISpawnSystem::AISpawnSystem()

@@ -42,7 +42,7 @@ void GameManager::Update(float dt)
 
 void GameManager::Draw(sf::RenderWindow * window, float dt)
 {
-	window->clear(sf::Color(40, 40, 40));
+	window->clear(WINDOW_CLEAR_COLOR);
 
 	for (auto S : m_systems)
 	{

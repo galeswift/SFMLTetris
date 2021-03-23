@@ -1,10 +1,6 @@
-﻿  AIEvaluatorSystem.cpp
-c:\users\kmiro\documents\visual studio 2019\projects\sfmltetris\tetris\tetris\aievaluatorsystem.cpp(25): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Main.cpp
-c:\users\kmiro\documents\visual studio 2019\projects\sfmltetris\tetris\tetris\main.cpp(115): warning C4305: 'argument': truncation from 'double' to 'float'
-  Generating code
-  2 of 911 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    18 functions had inline decision re-evaluated but remain unchanged
+﻿  Generating code
+  209 of 1065 functions (19.6%) were compiled, the rest were copied from previous compilation.
+    153 functions were new in current compilation
+    117 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Tetris.vcxproj -> C:\Users\kmiro\Documents\Visual Studio 2019\Projects\SFMLTetris\Tetris\x64\Release\Tetris.exe
