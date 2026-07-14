@@ -1,30 +1,47 @@
 #include "stdafx.h"
 #include "AISpawnComponent.h"
 #include "ClientGame.h"
+#include "ComponentPool.h"
 #include "Tetris.h"
 
-AISpawnComponent::AISpawnComponent(Tetris * tetris)
-	: Component(tetris)	
-	, m_aiSpawnPos(0,0)
+DEFINE_COMPONENT(AISpawnComponent)
+
+AISpawnComponent::AISpawnComponent()
+	: m_aiSpawnPos(0,0)
+	, m_flScale(0.5f)
+	, m_flXOffset(0.0f)
+	, m_flYOffset(0.0f)
 {
-	m_aiSpawnPos.x = tetris->GetTotalGameWidth();
-	m_aiSpawnPos.y = 0;
-	
-	m_flScale = 0.5f;
-	m_flXOffset = tetris->GetTotalGameWidth() * m_flScale;
-	m_flYOffset = tetris->GetTotalGameHeight() * m_flScale + 50;
 }
 
-AISpawnComponent::~AISpawnComponent()
+void AISpawnComponent::Reset()
 {
+	m_currentSpawns.clear();
+	m_spawnQueue.clear();
+	m_aiSpawnPos = sf::Vector2f(0, 0);
+	m_flScale = 0.5f;
+	m_flXOffset = 0.0f;
+	m_flYOffset = 0.0f;
 }
-void AISpawnComponent::RemoveAI(GameHandle handle)
+
+void AISpawnComponent::Init(Tetris* playerGame)
+{
+	m_owner = playerGame;
+	m_aiSpawnPos.x = playerGame->GetTotalGameWidth();
+	m_aiSpawnPos.y = 0;
+
+	m_flScale = 0.5f;
+	m_flXOffset = playerGame->GetTotalGameWidth() * m_flScale;
+	m_flYOffset = playerGame->GetTotalGameHeight() * m_flScale + 50;
+}
+
+void AISpawnComponent::RemoveAI(GameManager& manager, GameHandle handle)
 {
 	for (s32 i = 0; i < m_currentSpawns.size(); i++)
 	{
 		if (m_currentSpawns[i].handle == handle)
 		{
-			g_clientGame.RemoveGame(handle);
+			manager.RemoveGame(handle);
 			m_aiSpawnPos = m_currentSpawns[i].spawnPos;
 			m_currentSpawns.erase(m_currentSpawns.begin() + i);
 			break;
@@ -41,10 +58,10 @@ void AISpawnComponent::RemoveAI(GameHandle handle)
 
 }
 
-GameHandle AISpawnComponent::AddAI(s32 rows, s32 cols, float flUpdateFrequency, sf::Vector2f flAIHeuristicRange)
-{	
+GameHandle AISpawnComponent::AddAI(GameManager& manager, s32 rows, s32 cols, float flUpdateFrequency, sf::Vector2f flAIHeuristicRange)
+{
 	SpawnInfo newAI;
-	newAI.handle = g_clientGame.ReserveHandle();
+	newAI.handle = manager.ReserveHandle();
 
 	newAI.rowSize = rows;
 	newAI.columnSize = cols;
@@ -52,7 +69,7 @@ GameHandle AISpawnComponent::AddAI(s32 rows, s32 cols, float flUpdateFrequency, 
 	newAI.spawnScale = sf::Vector2f(m_flScale, m_flScale);
 	newAI.aiHeursticRange = flAIHeuristicRange;
 	newAI.updateFrequency = flUpdateFrequency;
-	m_spawnQueue.push_back(newAI);	
+	m_spawnQueue.push_back(newAI);
 
 	m_aiSpawnPos.x += m_flXOffset;
 

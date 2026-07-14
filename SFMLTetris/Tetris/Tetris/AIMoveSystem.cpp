@@ -4,57 +4,44 @@
 #include "AIEvaluatorUtil.h"
 #include "AIHeuristics.h"
 #include "AIMoveSystem.h"
+#include "ClientGame.h"
 #include "Tetris.h"
 
-AIMoveSystem::AIMoveSystem()
+void AIMoveSystem::Update(GameManager& manager, float dt)
 {
-}
-
-
-AIMoveSystem::~AIMoveSystem()
-{
-}
-
-void AIMoveSystem::Update(float dt)
-{
-	for (s32 i = 0; i < g_clientGame.m_games.size(); i++)
+	for (ComponentIterator itr = manager.GetComponents(COMPONENT_AI_CONTROLLER); itr.Get() != nullptr; itr++)
 	{
-		Tetris* current = g_clientGame.m_games[i]->m_game;
-		AIControllerComponent* controlComp = current->GetComponent<AIControllerComponent>();
-		AIEvaluatorComponent* evalComp = current->GetComponent<AIEvaluatorComponent>();
+		AIControllerComponent* controlComp = itr.Get<AIControllerComponent>();
+
+		AIEvaluatorComponent* evalComp = controlComp->m_owner->GetComponent<AIEvaluatorComponent>();
 		if (evalComp &&
-			evalComp->CanFindMove() && 
-			controlComp &&
+			evalComp->CanFindMove() &&
 			controlComp->NeedsNewMove())
 		{
 			AIEvaluatorUtil::FindBestMove(evalComp);
 			controlComp->SetCurrentMove(evalComp->GetBestMove());
 		}
-	}		
+	}
 }
 
-void AIMoveSystem::Draw(sf::RenderWindow * window, float dt)
+void AIMoveSystem::Draw(GameManager& manager, sf::RenderWindow * window, float dt)
 {
 	// Debug
-	for (s32 i = 0; i < g_clientGame.m_games.size(); i++)
+	for (ComponentIterator itr = manager.GetComponents(COMPONENT_AI_EVALUATOR); itr.Get() != nullptr; itr++)
 	{
-		Tetris* current = g_clientGame.m_games[i]->m_game;
-		AIEvaluatorComponent* evalComp = current->GetComponent<AIEvaluatorComponent>();
-		if (evalComp)
-		{ 
-			sf::Text text;
-			text.setFont(evalComp->m_owner->m_debugFont);
-			text.setCharacterSize(16);
-			text.setColor(sf::Color::White);
+		AIEvaluatorComponent* evalComp = itr.Get<AIEvaluatorComponent>();
+		sf::Text text;
+		text.setFont(evalComp->m_owner->m_debugFont);
+		text.setCharacterSize(16);
+		text.setColor(sf::Color::White);
 
-			for (int i = 0; i < evalComp->m_debugHeuristics.size(); i++)
-			{
-				std::string textStr = evalComp->m_debugHeuristics[i].m_description;
-				textStr += " " + std::to_string(evalComp->m_debugHeuristics[i].m_lastScore);
-				text.setPosition(sf::Vector2f(50, (float)250 + i * 20));
-				text.setString(textStr.c_str());
-				window->draw(text);
-			}
+		for (int j = 0; j < evalComp->m_debugHeuristics.size(); j++)
+		{
+			std::string textStr = evalComp->m_debugHeuristics[j].m_description;
+			textStr += " " + std::to_string(evalComp->m_debugHeuristics[j].m_lastScore);
+			text.setPosition(sf::Vector2f(50, (float)250 + j * 20));
+			text.setString(textStr.c_str());
+			window->draw(text);
 		}
-	}	
+	}
 }

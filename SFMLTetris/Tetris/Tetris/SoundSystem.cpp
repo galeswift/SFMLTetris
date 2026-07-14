@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "ClientGame.h"
 #include "SoundComponent.h"
 #include "SoundSystem.h"
 #include "Tetris.h"
@@ -50,16 +51,12 @@ void SoundSystem::LoadSounds(SoundComponent* pSoundCmp)
 	pSoundCmp->m_queuedSounds.clear();
 }
 
-void SoundSystem::Update(float dt)
+void SoundSystem::Update(GameManager& manager, float dt)
 {
-	for (s32 i = 0; i < g_clientGame.m_games.size(); i++)
+	for (ComponentIterator itr = manager.GetComponents(COMPONENT_SOUND); itr.Get() != nullptr; itr++)
 	{
-		Tetris* current = g_clientGame.m_games[i]->m_game;
-		SoundComponent* soundCmp = current->GetComponent<SoundComponent>();
-		if (soundCmp)
-		{
-			LoadSounds(soundCmp);
-			PlaySounds(soundCmp);
-		}
+		SoundComponent* soundCmp = itr.Get<SoundComponent>();
+		LoadSounds(soundCmp);
+		PlaySounds(soundCmp);
 	}
 }

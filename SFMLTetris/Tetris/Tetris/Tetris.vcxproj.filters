@@ -41,7 +41,7 @@
     <ClInclude Include="Tetris.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Networking.h">
+    <ClInclude Include="BoardState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AICommon.h">
@@ -80,6 +80,9 @@
     <ClInclude Include="Component.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentPool.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
     <ClInclude Include="PlayerComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
@@ -112,7 +115,7 @@
     <ClCompile Include="Tetris.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Networking.cpp">
+    <ClCompile Include="BoardState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
@@ -131,12 +134,6 @@
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="CombatComponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerComponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Component.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="AIControllerSystem.cpp">

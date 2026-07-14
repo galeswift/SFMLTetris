@@ -3,18 +3,8 @@
 #include "AIEvaluatorComponent.h"
 #include "AIEvaluatorUtil.h"
 #include "AIHeuristics.h"
-#include "ClientGame.h"
+#include "BoardState.h"
 #include "Tetris.h"
-
-
-AIEvaluatorUtil::AIEvaluatorUtil()
-{
-}
-
-
-AIEvaluatorUtil::~AIEvaluatorUtil()
-{
-}
 
 void AIEvaluatorUtil::FindBestMove(AIEvaluatorComponent* comp)
 {
@@ -33,30 +23,30 @@ void AIEvaluatorUtil::FindBestMove(AIEvaluatorComponent* comp)
 	}
 }
 
-DesiredMoveSet AIEvaluatorUtil::__FindBestMove(Tetris* tetrisBoard, AIEvaluatorComponent * ownerComp, int numLookaheads, bool holdPiece)
+DesiredMoveSet AIEvaluatorUtil::__FindBestMove(BoardState* board, AIEvaluatorComponent * ownerComp, int numLookaheads, bool holdPiece)
 {
 	DesiredMoveSet result;
 
 	numLookaheads--;
 
-	if (!tetrisBoard->m_currentPiece)
+	if (!board->m_currentPiece)
 	{
 		return result;
 	}
 
-	for (int i = 0; i < tetrisBoard->m_cols; i++)
+	for (int i = 0; i < board->m_cols; i++)
 	{
-		// Try all rotations	
-		int rotations = tetrisBoard->m_currentPiece->MaxRotations();
+		// Try all rotations
+		int rotations = board->m_currentPiece->MaxRotations();
 		for (int j = 0; j < rotations; j++)
 		{
-			// Make a copy of the board
-			Tetris boardCopy;
-			boardCopy.Clone(tetrisBoard);
+			// Make a copy of the board - just the game state, none of the presentation
+			BoardState boardCopy;
+			boardCopy.Clone(board);
 
 			if (holdPiece)
 			{
-				boardCopy.KeySwap();
+				boardCopy.SwapPiece();
 				result.swapPiece = true;
 			}
 
@@ -64,19 +54,16 @@ DesiredMoveSet AIEvaluatorUtil::__FindBestMove(Tetris* tetrisBoard, AIEvaluatorC
 			{
 				boardCopy.m_currentPiece->Rotate(true);
 			}
-			boardCopy.m_currentPiece->Move(-tetrisBoard->m_cols, 0);
+			boardCopy.m_currentPiece->Move(-board->m_cols, 0);
 			boardCopy.m_currentPiece->Move(i, 0);
 			int colIdx = (int)boardCopy.m_currentPiece->m_originColIdx;
 			boardCopy.DropCurrentPiece();
-
-			// Try the current piece in a specific position
-			// Try the next piece in a specific position	
 
 			// Try the next lookahead
 			float currentScore = 0.0f;
 			for (auto h : ownerComp->m_heuristics)
 			{
-				// Score the grid	
+				// Score the grid
 				float score = h->GetScore(ownerComp->m_owner, &boardCopy);
 				currentScore += score;
 			}

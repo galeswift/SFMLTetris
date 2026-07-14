@@ -1,6 +1,6 @@
 #pragma once
 
-class Tetris;
+class BoardState;
 
 class AIDebugHeuristic
 {
@@ -17,8 +17,9 @@ public:
 	{
 
 	}
+	virtual ~AIHeuristic() {};
 
-	virtual float GetScore(const Tetris* original, Tetris* newTetrisBoard) = 0;
+	virtual float GetScore(const BoardState* original, BoardState* newBoard) = 0;
 	float m_scalar;
 };
 
@@ -26,42 +27,42 @@ class AIHeuristic_AggregateHeight : public AIHeuristic
 {
 public:
 	using AIHeuristic::AIHeuristic;
-	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+	virtual float GetScore(const BoardState* original, BoardState* board);
 };
 
 class AIHeuristic_HighestCol : public AIHeuristic
 {
 public:
 	using AIHeuristic::AIHeuristic;
-	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+	virtual float GetScore(const BoardState* original, BoardState* board);
 };
 
 class AIHeuristic_DeepestHole : public AIHeuristic
 {
 public:
 	using AIHeuristic::AIHeuristic;
-	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+	virtual float GetScore(const BoardState* original, BoardState* board);
 };
 
 class AIHeuristic_GameLoss : public AIHeuristic
 {
 public:
 	using AIHeuristic::AIHeuristic;
-	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+	virtual float GetScore(const BoardState* original, BoardState* board);
 };
 
 class AIHeuristic_CompletedLines : public AIHeuristic
 {
 public:
 	using AIHeuristic::AIHeuristic;
-	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+	virtual float GetScore(const BoardState* original, BoardState* board);
 };
 
 class AIHeuristic_Holes : public AIHeuristic
 {
 public:
 	using AIHeuristic::AIHeuristic;
-	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+	virtual float GetScore(const BoardState* original, BoardState* board);
 };
 
 
@@ -69,12 +70,12 @@ class AIHeuristic_Blockade : public AIHeuristic
 {
 public:
 	using AIHeuristic::AIHeuristic;
-	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+	virtual float GetScore(const BoardState* original, BoardState* board);
 };
 
 class AIHeuristic_Bumpiness : public AIHeuristic
 {
 public:
 	using AIHeuristic::AIHeuristic;
-	virtual float GetScore(const Tetris* original, Tetris* tetrisBoard);
+	virtual float GetScore(const BoardState* original, BoardState* board);
 };

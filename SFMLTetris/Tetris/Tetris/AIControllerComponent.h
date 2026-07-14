@@ -5,12 +5,12 @@
 
 #define AI_CONTROLLER_UPDATE_FREQUENCY (.00f)
 
-class Tetris;
 class AIControllerComponent : public Component
 {
-public:
-	AIControllerComponent(Tetris* owner);
-	virtual ~AIControllerComponent();
+	DECLARE_COMPONENT(COMPONENT_AI_CONTROLLER)
+
+	AIControllerComponent();
+	virtual void Reset();
 
 	void SetUpdateFrequency(float time) { m_updateFrequency = time; }
 	void SetCurrentMove(DesiredMoveSet& move)
@@ -25,9 +25,7 @@ public:
 		return m_currentMove.used;
 	}
 
-	Tetris* m_tetrisBoard;
 	DesiredMoveSet m_currentMove;
 	float m_timeUntilUpdate;
 	float m_updateFrequency;
 };
-

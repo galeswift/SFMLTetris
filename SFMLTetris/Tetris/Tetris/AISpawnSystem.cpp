@@ -3,37 +3,33 @@
 #include "AIEvaluatorComponent.h"
 #include "AISpawnComponent.h"
 #include "AISpawnSystem.h"
+#include "ClientGame.h"
 #include "CombatComponent.h"
-#include "SoundComponent.h"
 #include "Tetris.h"
 
-AISpawnSystem::AISpawnSystem()
+void AISpawnSystem::Update(GameManager& manager, float dt)
 {
-}
-
-
-AISpawnSystem::~AISpawnSystem()
-{
-}
-
-void AISpawnSystem::Update(float dt)
-{
-	for (s32 i = 0; i < g_clientGame.GetSpawnComponent()->m_spawnQueue.size(); i++)
+	for (ComponentIterator itr = manager.GetComponents(COMPONENT_AI_SPAWN); itr.Get() != nullptr; itr++)
 	{
-		AISpawnComponent::SpawnInfo& currentInfo = g_clientGame.GetSpawnComponent()->m_spawnQueue.at(i);		
-		Tetris* otherGame = new Tetris();				
-		otherGame->Init(false, currentInfo.rowSize, currentInfo.columnSize);
-		GameInfo* aiGame = g_clientGame.AddGame<GameInfo>(otherGame, sf::FloatRect(currentInfo.spawnPos.x, currentInfo.spawnPos.y, currentInfo.spawnScale.x, currentInfo.spawnScale.y), currentInfo.handle);
+		AISpawnComponent& spawner = *itr.Get<AISpawnComponent>();
+		for (s32 i = 0; i < spawner.m_spawnQueue.size(); i++)
+		{
+			AISpawnComponent::SpawnInfo& currentInfo = spawner.m_spawnQueue.at(i);
+			Tetris* otherGame = new Tetris();
+			otherGame->Init(&manager, false, currentInfo.rowSize, currentInfo.columnSize);
+			manager.AddGame<GameInfo>(otherGame, sf::FloatRect(currentInfo.spawnPos.x, currentInfo.spawnPos.y, currentInfo.spawnScale.x, currentInfo.spawnScale.y), currentInfo.handle);
 
-		AIControllerComponent* aiComponent = new AIControllerComponent(otherGame);
-		aiComponent->SetUpdateFrequency(currentInfo.updateFrequency);
+			AIControllerComponent* aiComponent = manager.AddComponent<AIControllerComponent>(otherGame);
+			aiComponent->SetUpdateFrequency(currentInfo.updateFrequency);
 
-		otherGame->m_components.push_back(aiComponent);
-		otherGame->m_components.push_back(new AIEvaluatorComponent(otherGame, currentInfo.aiHeursticRange));
-		otherGame->m_components.push_back(new CombatComponent(otherGame));		
+			AIEvaluatorComponent* evalComponent = manager.AddComponent<AIEvaluatorComponent>(otherGame);
+			evalComponent->m_aiHeuristicRange = currentInfo.aiHeursticRange;
 
-		g_clientGame.GetSpawnComponent()->m_currentSpawns.push_back(currentInfo);
+			manager.AddComponent<CombatComponent>(otherGame);
+
+			spawner.m_currentSpawns.push_back(currentInfo);
+		}
+
+		spawner.m_spawnQueue.clear();
 	}
-	
-	g_clientGame.GetSpawnComponent()->m_spawnQueue.clear();
 }

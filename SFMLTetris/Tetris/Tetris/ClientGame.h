@@ -1,12 +1,10 @@
 #pragma once
 #include <vector>
-#include "Component.h"
 
-class AIControllerSystem;
-class AIEvaluatorSystem;
-class AISpawnComponent;
-class Component;
-class PlayerComponent;
+#include "ComponentPool.h"
+
+#define MAX_GAMES 32
+
 class System;
 class Tetris;
 
@@ -22,10 +20,10 @@ struct GameInfo
 
 	~GameInfo();
 
-	virtual void Update(float dt);	
+	virtual void Update(float dt);
 	virtual void Draw(sf::RenderWindow* window, float dt);
 	u32 m_handle;
-	Tetris* m_game;	
+	Tetris* m_game;
 	sf::View m_view;
 	sf::Vector2f m_pos;
 };
@@ -33,6 +31,7 @@ struct GameInfo
 class GameManager
 {
 public:
+	GameManager();
 	~GameManager();
 	template <typename T>
 	T* AddGame(Tetris* game, const sf::FloatRect& rect, GameHandle handle);
@@ -41,13 +40,24 @@ public:
 	void RemoveGame(GameHandle handle);
 	bool IsRunning();
 	u32 ReserveHandle() { return m_handleIdx++; }
-	AISpawnComponent* GetSpawnComponent();
 
-	std::vector<Component*> m_components;
+	// Component allocation - each manager owns its own pools, created in the
+	// constructor from the factories DEFINE_COMPONENT registers, and each game
+	// holds an O(1) lookup slot per component type.
+	// All requests go through the manager; nothing touches a pool directly.
+	Component* AddComponent(ComponentType type, Tetris* game);
+	template <typename T>
+	T* AddComponent(Tetris* game) { return (T*)AddComponent(T::TYPE, game); }
+	ComponentIterator GetComponents(ComponentType type);
+	void FreeComponents(Tetris* game);
+
 	std::vector<System*> m_systems;
 	std::vector<GameInfo*> m_games;
 
 	u32 m_handleIdx;
+
+private:
+	ComponentPoolBase* m_pools[COMPONENT_TYPE_COUNT];
 };
 
 template <typename T>
@@ -62,8 +72,6 @@ T* GameManager::AddGame(Tetris* game, const sf::FloatRect& rect, GameHandle hand
 	newInfo->m_handle = handle;
 	newInfo->m_pos = sf::Vector2f(rect.left, rect.top);
 	m_games.push_back(newInfo);
-	
+
 	return newInfo;
 }
-
-extern GameManager g_clientGame;

@@ -2,13 +2,14 @@
 
 #include "Component.h"
 
-struct GameInfo;
+class GameManager;
 
 class AISpawnComponent : public Component
 {
-public:
+	DECLARE_COMPONENT(COMPONENT_AI_SPAWN)
+
 	struct SpawnInfo
-	{		
+	{
 		GameHandle handle;
 		s32 rowSize;
 		s32 columnSize;
@@ -28,12 +29,13 @@ public:
 		{
 
 		}
-	};	
+	};
 
-	AISpawnComponent(Tetris* tetris);
-	~AISpawnComponent();
-	void RemoveAI(GameHandle handle);
-	GameHandle AddAI(s32 rows, s32 cols, float flUpdateFrequency, sf::Vector2f aiHeuristicRange);
+	AISpawnComponent();
+	virtual void Reset();
+	void Init(Tetris* playerGame);
+	void RemoveAI(GameManager& manager, GameHandle handle);
+	GameHandle AddAI(GameManager& manager, s32 rows, s32 cols, float flUpdateFrequency, sf::Vector2f aiHeuristicRange);
 
 	sf::Vector2f m_aiSpawnPos;
 	std::vector<SpawnInfo> m_currentSpawns;
@@ -42,4 +44,3 @@ public:
 	float m_flXOffset;
 	float m_flYOffset;
 };
-

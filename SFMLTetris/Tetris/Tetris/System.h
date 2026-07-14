@@ -1,10 +1,11 @@
 #pragma once
 
-#include "ClientGame.h"
+class GameManager;
 
 class System
 {
 public:
-	virtual void Update(float dt) = 0;
-	virtual void Draw(sf::RenderWindow* window, float dt) {};
+	virtual ~System() {};
+	virtual void Update(GameManager& manager, float dt) = 0;
+	virtual void Draw(GameManager& manager, sf::RenderWindow* window, float dt) {};
 };

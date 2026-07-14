@@ -1,8 +1,6 @@
 #include "stdafx.h"
 
-#include "AIControllerComponent.h"
 #include "AIControllerSystem.h"
-#include "AIEvaluatorComponent.h"
 #include "AIEvaluatorSystem.h"
 #include "AIMoveSystem.h"
 #include "AISpawnComponent.h"
@@ -10,83 +8,50 @@
 #include "ClientGame.h"
 #include "CombatComponent.h"
 #include "CombatSystem.h"
-#include "ClientGame.h"
-#include "Networking.h"
 #include "PlayerComponent.h"
 #include "SoundComponent.h"
 #include "SoundSystem.h"
 #include "Tetris.h"
 
-TetrisNetworkBase* g_networkPtr;
-
 int main(int argc, char** argv)
 {
 	srand(unsigned int(time(NULL)));
-	std::string ipAddress("");
-	if (argc > 1)
-	{
-		if (_stricmp(argv[1], "--server") == 0)
-		{
-			g_networkPtr = new TetrisServer();
-		}
-		else
-		{
-			ipAddress = argv[1];
-			g_networkPtr = new TetrisClient(ipAddress);
-		}
-	}
-
-	if (g_networkPtr != NULL)
-	{
-		if (!g_networkPtr->Init())
-		{
-			delete g_networkPtr;
-			g_networkPtr = NULL;
-		}
-	}
 
 	sf::ContextSettings windowSettings;
 	windowSettings.antialiasingLevel = 4;
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML TETRIS", sf::Style::Default, windowSettings);
-	
-	sf::View playerView;
+
+	GameManager gameManager;
 
 	Tetris* localGame = new Tetris();
-	localGame->Init(true, NUM_ROWS, NUM_COLS);
-	localGame->m_components.push_back(new PlayerComponent(localGame));
-	localGame->m_components.push_back(new SoundComponent(localGame));
-
-	CombatComponent* playerCombat = new CombatComponent(localGame);
-	localGame->m_components.push_back(playerCombat);	
-	playerCombat->m_MP = 10;
-	playerCombat->m_attack = 2;
-	playerCombat->m_defense = 1;		
-	
-	g_clientGame.AddGame<GameInfo>(localGame, sf::FloatRect(0, 0, PLAYER_SCALE, PLAYER_SCALE), g_clientGame.ReserveHandle());
+	localGame->Init(&gameManager, true, NUM_ROWS, NUM_COLS);
+	gameManager.AddGame<GameInfo>(localGame, sf::FloatRect(0, 0, PLAYER_SCALE, PLAYER_SCALE), gameManager.ReserveHandle());
 
 	// Components
-	g_clientGame.m_components.push_back(new AISpawnComponent(localGame));
+	gameManager.AddComponent<PlayerComponent>(localGame);
+	gameManager.AddComponent<SoundComponent>(localGame);
 
-	// systems
-	AIEvaluatorSystem* aiPlayer = new AIEvaluatorSystem();
-	AIControllerSystem* aiController = new AIControllerSystem();	
-	g_clientGame.m_systems.push_back(aiPlayer);
-	g_clientGame.m_systems.push_back(aiController);
-	g_clientGame.m_systems.push_back(new AIMoveSystem());
-	g_clientGame.m_systems.push_back(new AISpawnSystem());	
-	g_clientGame.m_systems.push_back(new CombatSystem());
-	g_clientGame.m_systems.push_back(new SoundSystem());
-		
+	CombatComponent* playerCombat = gameManager.AddComponent<CombatComponent>(localGame);
+	playerCombat->m_MP = 10;
+	playerCombat->m_attack = 2;
+	playerCombat->m_defense = 1;
+
+	AISpawnComponent* aiSpawner = gameManager.AddComponent<AISpawnComponent>(localGame);
+	aiSpawner->Init(localGame);
+
+	// Systems
+	gameManager.m_systems.push_back(new AIEvaluatorSystem());
+	gameManager.m_systems.push_back(new AIControllerSystem());
+	gameManager.m_systems.push_back(new AIMoveSystem());
+	gameManager.m_systems.push_back(new AISpawnSystem());
+	gameManager.m_systems.push_back(new CombatSystem());
+	gameManager.m_systems.push_back(new SoundSystem());
+
 	std::vector<GameHandle> aiInfo;
 	bool paused = false;
 	sf::Clock clock;
-	while (window.isOpen() && g_clientGame.IsRunning())
+	while (window.isOpen() && gameManager.IsRunning())
 	{
-		if (g_networkPtr != NULL)
-		{
-			g_networkPtr->Loop();
-		}
-
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -94,9 +59,9 @@ int main(int argc, char** argv)
 			{
 				if (event.key.code == sf::Keyboard::BackSpace)
 				{
-					for (int i = 0; i < g_clientGame.m_games.size(); i++)
+					for (s32 i = 0; i < gameManager.m_games.size(); i++)
 					{
-						g_clientGame.m_games.at(i)->m_game->KeyGarbage();
+						gameManager.m_games.at(i)->m_game->ApplyInput(INPUT_GARBAGE);
 					}
 				}
 				else if (event.key.code == sf::Keyboard::P)
@@ -104,40 +69,33 @@ int main(int argc, char** argv)
 					paused = !paused;
 				}
 				else if (event.key.code == sf::Keyboard::D)
-				{					
+				{
 					if (aiInfo.size() > 0)
-					{						
-						AISpawnComponent* spawnComp = g_clientGame.GetSpawnComponent();
-						spawnComp->RemoveAI(aiInfo.back());						
+					{
+						aiSpawner->RemoveAI(gameManager, aiInfo.back());
 						aiInfo.pop_back();
 					}
 				}
 				else if (event.key.code == sf::Keyboard::S)
-				{									
-					AISpawnComponent* spawnComp = g_clientGame.GetSpawnComponent();
+				{
 					float flAIRandomness = 0.0f;
 					int nRandRowRange = rand() % 14;
 					int nRandColRange = rand() % 6;
-					aiInfo.push_back(spawnComp->AddAI(NUM_ROWS - nRandRowRange, NUM_COLS - nRandColRange, 0.1 /*0.25f * rand()/ (float)RAND_MAX + 0.05)*/, sf::Vector2f(1.0f - flAIRandomness, 1.0f + flAIRandomness)));
+					aiInfo.push_back(aiSpawner->AddAI(gameManager, NUM_ROWS - nRandRowRange, NUM_COLS - nRandColRange, 0.1 /*0.25f * rand()/ (float)RAND_MAX + 0.05)*/, sf::Vector2f(1.0f - flAIRandomness, 1.0f + flAIRandomness)));
 				}
 			}
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
-		
+
 		sf::Time time = clock.restart();
 		if (!paused)
 		{
-			g_clientGame.Update(time.asSeconds());
+			gameManager.Update(time.asSeconds());
 		}
-		g_clientGame.Draw(&window, time.asSeconds());
+		gameManager.Draw(&window, time.asSeconds());
 		window.display();
 	}
 
-	if (g_networkPtr != NULL)
-	{
-		delete g_networkPtr;
-		g_networkPtr = NULL;
-	}
 	return 0;
 }

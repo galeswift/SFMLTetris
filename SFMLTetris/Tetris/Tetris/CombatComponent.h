@@ -10,9 +10,10 @@ struct DamageEvent
 
 class CombatComponent :	public Component
 {
-public:
-	CombatComponent(Tetris* owner);
-	virtual ~CombatComponent();
+	DECLARE_COMPONENT(COMPONENT_COMBAT)
+
+	CombatComponent();
+	virtual void Reset();
 
 	Tetris* m_attackingTarget;
 	int m_attack;
@@ -22,4 +23,3 @@ public:
 
 	std::vector<DamageEvent> m_damageQueue;
 };
-

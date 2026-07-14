@@ -1,4 +1,5 @@
+#include "stdafx.h"
+#include "ComponentPool.h"
 #include "PlayerComponent.h"
 
-#include "stdafx.h"
-
+DEFINE_COMPONENT(PlayerComponent)

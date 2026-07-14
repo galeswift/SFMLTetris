@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "AIHeuristics.h"
-#include "Tetris.h"
+#include "BoardState.h"
 
-float AIHeuristic_AggregateHeight::GetScore(const Tetris* original, Tetris* tetrisBoard)
+float AIHeuristic_AggregateHeight::GetScore(const BoardState* original, BoardState* tetrisBoard)
 {
 	float result = 0.0f;
 
@@ -21,13 +21,13 @@ float AIHeuristic_AggregateHeight::GetScore(const Tetris* original, Tetris* tetr
 	return m_scalar * result;
 }
 
-float AIHeuristic_CompletedLines::GetScore(const Tetris* original, Tetris* tetrisBoard)
+float AIHeuristic_CompletedLines::GetScore(const BoardState* original, BoardState* tetrisBoard)
 {
 	float result = (float)(tetrisBoard->m_clearedRows - original->m_clearedRows);
 	return m_scalar * result;
 }
 
-float AIHeuristic_Holes::GetScore(const Tetris* original, Tetris* tetrisBoard)
+float AIHeuristic_Holes::GetScore(const BoardState* original, BoardState* tetrisBoard)
 {
 	float result = 0.0f;
 
@@ -51,7 +51,7 @@ float AIHeuristic_Holes::GetScore(const Tetris* original, Tetris* tetrisBoard)
 	return m_scalar * result;
 }
 
-float AIHeuristic_Bumpiness::GetScore(const Tetris* original, Tetris* tetrisBoard)
+float AIHeuristic_Bumpiness::GetScore(const BoardState* original, BoardState* tetrisBoard)
 {
 	float result = 0.0f;
 
@@ -81,7 +81,7 @@ float AIHeuristic_Bumpiness::GetScore(const Tetris* original, Tetris* tetrisBoar
 	return m_scalar * result;
 }
 
-float AIHeuristic_HighestCol::GetScore(const Tetris * original, Tetris * tetrisBoard)
+float AIHeuristic_HighestCol::GetScore(const BoardState* original, BoardState* tetrisBoard)
 {
 	float result = 0.0f;
 	int highest = 0;
@@ -113,7 +113,7 @@ float AIHeuristic_HighestCol::GetScore(const Tetris * original, Tetris * tetrisB
 	return m_scalar * result;
 }
 
-float AIHeuristic_GameLoss::GetScore(const Tetris * original, Tetris * tetrisBoard)
+float AIHeuristic_GameLoss::GetScore(const BoardState* original, BoardState* tetrisBoard)
 {
 	float result = 0.0f;
 	if (tetrisBoard->m_resetCount > original->m_resetCount)
@@ -123,7 +123,7 @@ float AIHeuristic_GameLoss::GetScore(const Tetris * original, Tetris * tetrisBoa
 	return result;
 }
 
-float AIHeuristic_Blockade::GetScore(const Tetris * original, Tetris * tetrisBoard)
+float AIHeuristic_Blockade::GetScore(const BoardState* original, BoardState* tetrisBoard)
 {
 	float result = 0.0f;
 
@@ -150,7 +150,7 @@ float AIHeuristic_Blockade::GetScore(const Tetris * original, Tetris * tetrisBoa
 	return m_scalar * result;
 }
 
-float AIHeuristic_DeepestHole::GetScore(const Tetris* original, Tetris* tetrisBoard)
+float AIHeuristic_DeepestHole::GetScore(const BoardState* original, BoardState* tetrisBoard)
 {
 	float result = 0.0f;
 

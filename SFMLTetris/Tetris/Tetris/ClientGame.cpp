@@ -1,43 +1,64 @@
 #include "stdafx.h"
 
-#include "AIControllerSystem.h"
-#include "AIEvaluatorSystem.h"
-#include "AISpawnComponent.h"
 #include "ClientGame.h"
+#include "PlayerComponent.h"
 #include "System.h"
 #include "Tetris.h"
 
-GameManager g_clientGame = GameManager();
+ComponentPoolFactory ComponentRegistry::s_factories[COMPONENT_TYPE_COUNT];
+
+void ComponentRegistry::Register(ComponentType type, ComponentPoolFactory factory)
+{
+	s_factories[type] = factory;
+}
+
+ComponentPoolBase* ComponentRegistry::CreatePool(ComponentType type)
+{
+	return s_factories[type] ? s_factories[type]() : NULL;
+}
+
+GameManager::GameManager()
+	: m_handleIdx(0)
+{
+	for (int i = 0; i < COMPONENT_TYPE_COUNT; i++)
+	{
+		m_pools[i] = ComponentRegistry::CreatePool((ComponentType)i);
+	}
+}
 
 GameManager::~GameManager()
 {
-	// SFML Crashes in cleaning up the font here..
-	//for (int i = 0; i < m_games.size(); i++)
-	//{		
-	//	delete m_games[i];
-	//	m_games.erase(m_games.begin() + i);
-	//	i--;
-	//}	
+	for (s32 i = 0; i < m_games.size(); i++)
+	{
+		FreeComponents(m_games[i]->m_game);
+		delete m_games[i];
+	}
+	m_games.clear();
 
-	//for (int i = 0; i < m_systems.size(); i++)
-	//{
-	//	delete m_systems[i];
-	//	m_systems.erase(m_systems.begin() + i);
-	//	i--;
-	//}
+	for (int i = 0; i < COMPONENT_TYPE_COUNT; i++)
+	{
+		delete m_pools[i];
+		m_pools[i] = NULL;
+	}
+
+	for (s32 i = 0; i < m_systems.size(); i++)
+	{
+		delete m_systems[i];
+	}
+	m_systems.clear();
 }
 
 void GameManager::Update(float dt)
 {
 	for (auto S : m_systems)
 	{
-		S->Update(dt);
+		S->Update(*this, dt);
 	}
 
 	for (auto T : m_games)
 	{
 		T->Update(dt);
-	}	
+	}
 }
 
 void GameManager::Draw(sf::RenderWindow * window, float dt)
@@ -46,7 +67,7 @@ void GameManager::Draw(sf::RenderWindow * window, float dt)
 
 	for (auto S : m_systems)
 	{
-		S->Draw(window, dt);
+		S->Draw(*this, window, dt);
 	}
 
 	for (auto T : m_games)
@@ -64,18 +85,28 @@ bool GameManager::IsRunning()
 	return false;
 }
 
-AISpawnComponent* GameManager::GetSpawnComponent()
+Component* GameManager::AddComponent(ComponentType type, Tetris* game)
 {
-	AISpawnComponent* result = NULL;
-	for (s32 i = 0; i < m_components.size(); i++)
+	Component* component = m_pools[type]->AllocBase(game);
+	game->m_componentSlots[type] = component;
+	return component;
+}
+
+ComponentIterator GameManager::GetComponents(ComponentType type)
+{
+	return ComponentIterator(m_pools[type]);
+}
+
+void GameManager::FreeComponents(Tetris* game)
+{
+	for (int i = 0; i < COMPONENT_TYPE_COUNT; i++)
 	{
-		result = dynamic_cast<AISpawnComponent*>(m_components[i]);
-		if (result != NULL)
+		if (game->m_componentSlots[i])
 		{
-			break;
+			m_pools[i]->Free(game->m_componentSlots[i]);
+			game->m_componentSlots[i] = NULL;
 		}
 	}
-	return result;
 }
 
 void GameManager::RemoveGame(GameHandle handle)
@@ -84,6 +115,7 @@ void GameManager::RemoveGame(GameHandle handle)
 	{
 		if (m_games[i]->m_handle == handle)
 		{
+			FreeComponents(m_games[i]->m_game);
 			delete m_games[i];
 			m_games.erase(m_games.begin() + i);
 			break;

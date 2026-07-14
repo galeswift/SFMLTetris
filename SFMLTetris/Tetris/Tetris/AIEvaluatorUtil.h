@@ -3,15 +3,12 @@
 #include "AICommon.h"
 
 class AIEvaluatorComponent;
+class BoardState;
 
 class AIEvaluatorUtil
 {
 public:
-	AIEvaluatorUtil();
-	~AIEvaluatorUtil();
-
 	static void FindBestMove(AIEvaluatorComponent* comp);
 private:
-	static DesiredMoveSet __FindBestMove(Tetris* tetrisBoard, class AIEvaluatorComponent* ownerComp, int lookaheads, bool holdPiece);
+	static DesiredMoveSet __FindBestMove(BoardState* board, AIEvaluatorComponent* ownerComp, int lookaheads, bool holdPiece);
 };
-

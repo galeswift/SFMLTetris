@@ -5,15 +5,16 @@
 
 #include "SFML/Audio.hpp"
 
-class Tetris;
-
 class SoundComponent : public Component
 {
-public:
-	using Component::Component;
+	DECLARE_COMPONENT(COMPONENT_SOUND)
+
+	virtual ~SoundComponent();
+	virtual void Reset();
 
 	void QueueSound(std::string szSoundName);
-	
+	void UnloadSounds();
+
 	struct LoadedSound
 	{
 		bool m_queued;

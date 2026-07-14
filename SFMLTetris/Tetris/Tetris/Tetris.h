@@ -1,84 +1,23 @@
+#pragma once
+
+#include "BoardState.h"
 #include "Component.h"
 
-class Tetris;
+class GameManager;
 
-enum PieceType
+// Every way to poke a board goes through this - keyboard, AI controller,
+// debug keys, and (someday) the network all issue the same commands.
+enum InputCommand
 {
-	SHAPE_T,
-	SHAPE_Z,
-	SHAPE_S,
-	SHAPE_L,
-	SHAPE_J,
-	SHAPE_CUBE,
-	SHAPE_TETRIS,
-	SHAPE_COUNT
-};
-
-class Piece;
-
-class Block
-{
-public:	
-	Block()
-		: rowIdx(-1)
-		, colIdx(-1)		
-	{
-
-	}
-
-	sf::Color m_fillColor;
-	sf::Color m_outlineColor;
-
-	int rowIdx;
-	int colIdx;		
-	void Draw(sf::RenderWindow* window, const sf::Vector2f& vecOrigin, sf::RectangleShape& blockShape, int colOffset, int rowOffset, bool ghost);
-};
-
-class Piece
-{
-public:
-	Piece() 
-	: m_board(NULL)
-	, m_originRotations(0)
-	, m_id(0)
-	{};
-	Piece(const Piece& other);
-	void Draw(sf::RenderWindow* window, bool ghost);
-	bool Rotate(bool right);
-	void Init(Tetris* board);
-	bool Move(int x, int y);
-	bool PositionIsValid();
-	void Drop();	
-	void PlaceIntoHolding();
-	void PlaceIntoGrid();
-	void PlaceIntoPreview(int slot);
-	int MaxRotations() { return m_maxRotations;  }
-	Tetris* m_board;
-	Block m_blocks[4];
-	float m_originRowIdx;
-	float m_originColIdx;
-	int m_pivotRow;
-	int m_pivotCol;
-	int m_maxRotations;
-	int m_originRotations;
-	int m_id;
-	PieceType m_type;
-
-private:
-	bool __TryRotate(bool right);
-	void __DoRotate(bool right);
-};
-
-class GridCell
-{
-public:
-	GridCell()		
-		: m_isFilled(false)
-	{
-
-	}
-	Block m_block;	
-	bool m_isFilled;
+	INPUT_EXIT,
+	INPUT_GARBAGE,
+	INPUT_CLEAR_ROW,
+	INPUT_ROTATE,
+	INPUT_MOVE_LEFT,
+	INPUT_MOVE_RIGHT,
+	INPUT_MOVE_DOWN,
+	INPUT_DROP,
+	INPUT_SWAP
 };
 
 struct InputMapping
@@ -90,103 +29,50 @@ struct InputMapping
 	sf::Keyboard::Key key;
 	float m_timeHeld;
 	bool m_isHeld;
-	void(Tetris::*InputFunc)();
+	InputCommand command;
 };
 
-class TetrisGrid
-{
-public:	
-	GridCell m_cells[NUM_COLS][NUM_ROWS];
-};
-
-class Tetris
+// Presentation and input on top of a BoardState
+class Tetris : public BoardState
 {
 public:
 	Tetris();
-	~Tetris();
-	void Clone(const Tetris* other);
-	Piece* CreatePiece(PieceType type);
-	void FillPieceShape(Block* block, sf::Color & pieceColor, sf::Color & outlineColor);
+	virtual ~Tetris();
 
-	void Init(bool isPlayer, int rows, int cols);
+	void Init(GameManager* manager, bool isPlayer, int rows, int cols);
 	void InitResources();
 	void InitKeyBindings();
 	void Reset();
-	void OnBoardFilled();
-	void CreateNewPiece(bool deleteCurrent);
 	void Update(float dt);
 	void Draw(sf::RenderWindow* window);
-	void DropCurrentPiece();
-	void ClearRow(int row);
-	void UpdateCurrentLevel();
-	void DropRow(int row);	
-	void AddGarbage(int numRows);	
+	void DrawPiece(sf::RenderWindow* window, Piece* piece, bool ghost);
+	void ApplyInput(InputCommand command);
+	void QueueSound(const char* soundName);
 	bool IsRunning();
-	bool IsBoardPlayable();
-	float GetDropSpeed();
-	// Input mappings
-	void KeyExit();
-	void KeyGarbage();
-	void KeyClearRow();
-	void KeyRotate();
-	void KeyMoveLeft();
-	void KeyMoveRight();
-	void KeyMoveDown();
-	void KeyDrop();
-	void KeySwap();
 
 	int GetTotalGameHeight();
 	int GetTotalGameWidth();
 	const sf::RectangleShape* GetFieldShape();
 
 	template<typename T>
-	T* GetComponent();
+	T* GetComponent() { return (T*)m_componentSlots[T::TYPE]; }
 
-	TetrisGrid m_grid;	
-	Piece* m_currentPiece;		
-	Piece* m_heldPiece;
-	Piece* m_previewPieces[NUM_PREVIEW_PIECES];
-	sf::RectangleShape m_blockShape;	
+	GameManager* m_manager;
+	Component* m_componentSlots[COMPONENT_TYPE_COUNT];
+
+	sf::RectangleShape m_blockShape;
 	sf::RectangleShape m_fieldShape;
 	sf::RectangleShape m_previewContainerShape;
 	sf::RectangleShape m_swapContainerShape;
-	
+
 	sf::Vector2f m_fieldOrigin;
 	int	m_fieldWidth;
-	int	m_fieldHeight;	
+	int	m_fieldHeight;
 	int m_totalGameWidth;
 	int m_totalGameHeight;
-	float m_repeatTimer;
-	float m_repeatStartTimer;
-	float m_levelDropSpeed;
-	bool m_canSwapPiece;
 	bool m_isRunning;
-	bool m_boardIsPlayable;
-	bool m_isClone;	
-	int m_clearedRows;
-	int m_currentLevel;
-	int m_pieceID;
-	int m_rows;
-	int m_cols;
-	int m_resetCount;
-	int m_lastClearCount;
-	
+
 	sf::Font m_mainFont;
 	sf::Font m_debugFont;
 	std::vector<InputMapping> m_inputs;
-	std::vector<Component*> m_components;
 };
-
-template<typename T>
-inline T * Tetris::GetComponent()
-{
-	for (auto C : m_components)
-	{
-		T* result = dynamic_cast<T*>(C);
-		if (result)
-		{
-			return result;
-		}
-	}
-	return NULL;
-}

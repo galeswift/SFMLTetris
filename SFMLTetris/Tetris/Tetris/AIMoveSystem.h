@@ -1,11 +1,9 @@
 #pragma once
 #include "System.h"
+
 class AIMoveSystem : public System
 {
 public:
-	AIMoveSystem();
-	~AIMoveSystem();
-	void Update(float dt) override;	
-	void Draw(sf::RenderWindow* window, float dt) override;
+	void Update(GameManager& manager, float dt) override;
+	void Draw(GameManager& manager, sf::RenderWindow* window, float dt) override;
 };
-

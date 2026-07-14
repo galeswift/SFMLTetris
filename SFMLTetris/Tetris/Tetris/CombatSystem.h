@@ -1,8 +1,8 @@
-
+#pragma once
 #include "System.h"
 
-class CombatSystem: public System
+class CombatSystem : public System
 {
 public:
-	virtual void Update(float dt);
+	void Update(GameManager& manager, float dt) override;
 };
